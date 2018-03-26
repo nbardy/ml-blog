@@ -4,7 +4,7 @@
   "description": "",
   "main": "index.js",
   "dependencies": {
-    "deeplearn": "^0.4.1"
+    "deeplearn": "^0.6.0-alpha6"
   },
   "devDependencies": {
     "@babel/core": "^7.0.0-beta.37",

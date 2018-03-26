@@ -1,135 +1,110 @@
-import {
-  Array1D,
-  InCPUMemoryShuffledInputProviderBuilder,
-  Graph,
-  Session,
-  SGDOptimizer,
-  NDArrayMathGPU,
-  CostReduction,
-} from 'deeplearn';
+import  * as dl from 'deeplearn';
 
-// Encapsulates math operations on the CPU and GPU.
-const math = new NDArrayMathGPU();
+console.log(dl)
+const a = dl.variable(dl.scalar(Math.random()));
+const b = dl.variable(dl.scalar(Math.random()));
+const c = dl.variable(dl.scalar(Math.random()));
 
-class ColorAccessibilityModel {
-  // Runs training.
-  session;
+const learningRate = 0.01;
+const optimizer = dl.train.sgd(learningRate);
 
-  // An optimizer with a certain initial learning rate. Used for training.
-  initialLearningRate = 0.06;
-  optimizer;
+/*
+ * This function represents our 'model'. Given an input 'x' it will try and predict
+ * the appropriate output 'y'.
+ *
+ * This could be as complicated a 'neural net' as we would like, but we can just
+ * directly model the quadratic equation we are trying to model.
+ *
+ * It is also sometimes referred to as the 'forward' step of our training process.
+ * Though we will use the same function for predictions later.
+ *
+ *
+ * @return number predicted y value
+ */function predict(input) {
+  // y = a * x ^ 2 + b * x + c
+  return dl.tidy(() => {
+    const x = dl.scalar(input);
 
-  // Each training batch will be on this many examples.
-  batchSize = 300;
+    const ax2 = a.mul(x.square());
+    const bx = b.mul(x);
+    const y = ax2.add(bx).add(c);
 
-  inputTensor;
-  targetTensor;
-  costTensor;
-  predictionTensor;
-
-  // Maps tensors to InputProviders.
-  feedEntries;
-
-  constructor() {
-    this.optimizer = new SGDOptimizer(this.initialLearningRate);
-  }
-
-  setupSession(trainingSet) {
-    const graph = new Graph();
-
-    this.inputTensor = graph.placeholder('input RGB value', [3]);
-    this.targetTensor = graph.placeholder('output RGB value', [2]);
-
-    let fullyConnectedLayer = this.createFullyConnectedLayer(graph, this.inputTensor, 0, 64);
-    fullyConnectedLayer = this.createFullyConnectedLayer(graph, fullyConnectedLayer, 1, 32);
-    fullyConnectedLayer = this.createFullyConnectedLayer(graph, fullyConnectedLayer, 2, 16);
-
-    this.predictionTensor = this.createFullyConnectedLayer(graph, fullyConnectedLayer, 3, 2);
-    this.costTensor = graph.meanSquaredCost(this.targetTensor, this.predictionTensor);
-
-    this.session = new Session(graph, math);
-
-    this.prepareTrainingSet(trainingSet);
-  }
-
-  prepareTrainingSet(trainingSet) {
-    math.scope(() => {
-      const { rawInputs, rawTargets } = trainingSet;
-
-      const inputArray = rawInputs.map(v => Array1D.new(this.normalizeColor(v)));
-      const targetArray = rawTargets.map(v => Array1D.new(v));
-
-      const shuffledInputProviderBuilder = new InCPUMemoryShuffledInputProviderBuilder([ inputArray, targetArray ]);
-      const [ inputProvider, targetProvider ] = shuffledInputProviderBuilder.getInputProviders();
-
-      // Maps tensors to InputProviders.
-      this.feedEntries = [
-        { tensor: this.inputTensor, data: inputProvider },
-        { tensor: this.targetTensor, data: targetProvider },
-      ];
-    });
-  }
-
-  train(step, computeCost) {
-    // Every 50 steps, lower the learning rate by 10%.
-    let learningRate = this.initialLearningRate * Math.pow(0.90, Math.floor(step / 50));
-    this.optimizer.setLearningRate(learningRate);
-
-    // Train one batch.
-    let costValue;
-    math.scope(() => {
-      const cost = this.session.train(
-        this.costTensor,
-        this.feedEntries,
-        this.batchSize,
-        this.optimizer,
-        computeCost ? CostReduction.MEAN : CostReduction.NONE,
-      );
-
-      // Compute the cost (by calling get), which requires transferring data from the GPU.
-      if (computeCost) {
-        costValue = cost.get();
-      }
-    });
-
-    return costValue;
-  }
-
-  predict(rgb) {
-    let classifier = [];
-
-    math.scope(() => {
-      const mapping = [{
-        tensor: this.inputTensor,
-        data: Array1D.new(this.normalizeColor(rgb)),
-      }];
-
-      classifier = this.session.eval(this.predictionTensor, mapping).getValues();
-    });
-
-    return [ ...classifier ];
-  }
-
-  createFullyConnectedLayer(
-    graph,
-    inputLayer,
-    layerIndex,
-    units,
-    activationFunction
-  ) {
-    return graph.layers.dense(
-      `fully_connected_${layerIndex}`,
-      inputLayer,
-      units,
-      activationFunction
-        ? activationFunction
-        : (x) => graph.relu(x)
-    );
-  }
-
-  normalizeColor(rgb) {
-    return rgb.map(v => v / 255);
-  }
+    return y;
+  });
+}
+/*
+ * This will tell us how good the 'prediction' is given what we actually expected.
+ *
+ * prediction is a tensor with our predicted y value.
+ * actual number is a number with the y value the model should have predicted.
+ */
+function loss(prediction, actual) {
+  // Having a good error metric is key for training a machine learning model
+  const error = dl.scalar(actual).sub(prediction).square();
+  return error;
 }
 
-export default ColorAccessibilityModel;
+/*
+ * This will iteratively train our model. We test how well it is doing
+ * after numIterations by calculating the mean error over all the given
+ * samples after our training.
+ *
+ * xs - training data x values
+ * ys — training data y values
+ */
+async function train(xs, ys, numIterations, done) {
+  let currentIteration = 0;
+
+  for (let iter = 0; iter < numIterations; iter++) {
+    for (let i = 0; i < xs.length; i++) {
+      // Minimize is where the magic happens, we must return a
+      // numerical estimate (i.e. loss) of how well we are doing using the
+      // current state of the variables we created at the start.
+
+      // This optimizer does the 'backward' step of our training data
+      // updating variables defined previously in order to minimize the
+      // loss.
+      optimizer.minimize(() => {
+        // Feed the examples into the model
+        const pred = predict(xs[i]);
+        const predLoss = loss(pred, ys[i]);
+
+        return predLoss;
+      });
+    }
+
+    // Use dl.nextFrame to not block the browser.
+    await dl.nextFrame();
+  }
+
+  done();
+}
+
+/*
+ * This function compare expected results with the predicted results from
+ * our model.
+ */
+function test(xs, ys) {
+  dl.tidy(() => {
+    const predictedYs = xs.map(predict);
+    console.log('Expected', ys);
+    console.log('Got', predictedYs.map((p) => p.dataSync()[0]));
+  })
+}
+
+const data = {
+  xs: [0, 1, 2, 3],
+  ys: [1.1, 5.9, 16.8, 33.9]
+};
+
+function runml() {
+  // Lets see how it does before training.
+  console.log('Before training: using random coefficients')
+  test(data.xs, data.ys);
+  train(data.xs, data.ys, 500, () => {
+    console.log(`After training: a=${a.dataSync()}, b=${b.dataSync()}, c=${c.dataSync()}`)
+    test(data.xs, data.ys);
+  });
+}
+
+export {runml}

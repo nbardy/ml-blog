@@ -1,8 +1,10 @@
-import {newGame,gameEnded,getMove,progressBoard} from './data.js';
+import {newGame,gameEnded,getMoveRandom,getMoveClostestToICenter,progressBoard} from './data.js';
 import {newCanvas,drawGame} from './draw.js';
+import {runml} from './nn.js';
+import * as dl from 'deeplearn'
 
-const ROW_COUNT  = 300,
-      COL_COUNT  = 300,
+const ROW_COUNT  = 200,
+      COL_COUNT  = 200,
       CELL_WIDTH = 2,
       TURN_SPEED = 0;
 
@@ -16,42 +18,44 @@ if(module.hot) {
 }
 
 function start() {
+  const canvas = newCanvas(COL_COUNT, ROW_COUNT, CELL_WIDTH)
+  var game = newGame(ROW_COUNT, COL_COUNT);
+
+  const board = document.createElement("div");
+  document.body.appendChild(board);
+  document.body.appendChild(canvas)
+
   const opts = {
     ROW_COUNT: ROW_COUNT,
     COL_COUNT: COL_COUNT,
-    CELL_WIDTH: CELL_WIDTH
+    CELL_WIDTH: CELL_WIDTH,
+    canvas: canvas,
+    board: board
   }
 
-  const canvas = newCanvas(COL_COUNT*CELL_WIDTH, ROW_COUNT*CELL_WIDTH)
-  const game = newGame(ROW_COUNT, COL_COUNT);
-
-  document.body.appendChild(canvas)
-  drawGame( canvas, game, opts)
+  drawGame(game, opts)
+  // dl.ENV.set('DEBUG',true)
 
   var player = 1;
   var move;
-
   const next = function() {
-    // for (let i = 0 ; i < 10; i++) {
-    move = getMove(game);
+    move = getMoveRandom(game,opts);
     game.set(player,move);
     player = -1
 
-    // drawGame(canvas, game, opts);
+    drawGame(game, opts);
 
-    move = getMove(game);
+    move = getMoveRandom(game,opts);
     game.set(player,move);
     player = 1
 
-    // drawGame(canvas, game, opts);
 
-    progressBoard(game,opts);
-    // drawGame(canvas, game, opts);
+    game = progressBoard(game,opts);
 
     if (!gameEnded(game)) {
       gameThreads.push(setTimeout(next, TURN_SPEED));
     } else {
-      drawGame(canvas, game, opts);
+      drawGame(game, opts);
     }
   }
 
@@ -63,3 +67,5 @@ function clean() {
   gameThreads.forEach(v => clearTimeout(v))
   gameThreads = [];
 }
+
+runml()
