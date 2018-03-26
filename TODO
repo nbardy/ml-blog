@@ -1,2 +1,7 @@
 Fix weird col vs row thing. only works when they are equal, must of flip flopped something
 Add ML Bits
+
+ML Ideas
+--------
+
+Do one that takes board state ->
