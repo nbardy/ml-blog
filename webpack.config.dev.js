@@ -38,7 +38,12 @@ module.exports = {
             presets: ['es2017']
           }
         }
+      },
+      {
+        test: /\.css$/,
+        use: ['style-loader', 'css-loader']
       }
+
     ]
   }
 };

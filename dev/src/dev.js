@@ -1,13 +1,18 @@
 import {newElement}            from '~/dom.js'
-import {newField, newParticles}              
+import {newField, newParticles, updateParticles}              
                                from '~/data.js'
+import {drawParticles}         from '~/draw.js'
 
-// console.log(Igloo)
+import css from '~/file.css';
+
 
 console.log("Dev mode")
 
+var killPrevious = function() {};
+
 function clean() {
   document.body.innerHTML = ""
+  killPrevious()
 }
 
 function start(config) {
@@ -18,18 +23,41 @@ function start(config) {
   // The force field
   const field = newField(config)
   // The particles of the simulation
-  const particles = newParticles(config)
+  var particles = newParticles(config)
 
+  drawParticles(canvas, particles, config)
+  //
   const board = document.createElement("div");
   document.body.appendChild(board);
   document.body.appendChild(canvas)
+
+  // Use closure to kill
+  var running = true;
+
+  killPrevious = function() { running = false; }
+
+  function run(particles) {
+    drawParticles(canvas, particles, config);
+    const updatedParticles = updateParticles(particles, field, 1, config);
+
+    if(running) {
+      requestAnimationFrame(
+        function() { run(updatedParticles) })
+    }
+  }
+
+  run(particles)
 }
 
-var DEV_CONFIG = {
+//TODO: Add wrap to particles
+//
+const DEV_CONFIG = {
   width:   400,
   height:  400,
-  density: 1/10,
-  particle_count: 4
+  density: 1,
+  forceMagnitude: 1/10,
+  velMagnitude: 6,
+  particleCount: 10000
 }
 
 if(module.hot) {
