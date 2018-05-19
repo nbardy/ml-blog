@@ -12,12 +12,7 @@ tf.Tensor.prototype.xytoI = function(width) {
   const rep = tf.tensor1d([1, width], 'int32').stackNTimes(this.size / 2)
   const indices = tf.round(this).toInt().mul(rep).sum(1);
 
-  if(this.dtype == 'float32') {
-    return tf.round(indices).toInt()
-  } else {
-    return indices;
-  }
-
+  return indices;
 }
 
 //  Takes a tensor and returns a sum of the squares.

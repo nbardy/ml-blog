@@ -2,7 +2,6 @@ import {newElement}            from '~/dom.js'
 import {newField, newParticles, updateParticles}              
                                from '~/data.js'
 import {drawParticles}         from '~/draw.js'
-
 import css from '~/file.css';
 
 
@@ -52,12 +51,13 @@ function start(config) {
 //TODO: Add wrap to particles
 //
 const DEV_CONFIG = {
-  width:   400,
-  height:  400,
-  density: 1,
-  forceMagnitude: 1/10,
-  velMagnitude: 6,
-  particleCount: 10000
+  width:   700,
+  height:  700,
+  density: 1/50,
+  forceMagnitude: 1/3,
+  velMagnitude: 1/10,
+  maxVel: 20,
+  particleCount: 5000
 }
 
 if(module.hot) {
