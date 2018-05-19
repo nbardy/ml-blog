@@ -12,8 +12,9 @@ export function newField(config) {
 
   return tf.tidy(() => {
     const dir = tf.randomUniform([w*h],0, 2 * Math.PI);
+    const mag = tf.randomUniform([w*h],config.initMagnitude[0], config.initMagnitude[1]);
 
-    return dir.cos().stack(dir.sin(),1)
+    return dir.cos().mul(mag).stack(dir.sin().mul(mag),1)
   })
 }
 

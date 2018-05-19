@@ -53,11 +53,12 @@ function start(config) {
 const DEV_CONFIG = {
   width:   700,
   height:  700,
-  density: 1/50,
-  forceMagnitude: 1.3,
+  density: 1/100,
+  forceMagnitude: 13.67,
+  initMagnitude: [0,22],
   velMagnitude: 1/10,
-  maxVel: 20,
-  particleCount: 5000
+  maxVel: 220,
+  particleCount: 50000
 }
 
 if(module.hot) {
