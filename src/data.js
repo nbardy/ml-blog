@@ -12,7 +12,8 @@ export function newField(config) {
 
   return tf.tidy(() => {
     const dir = tf.randomUniform([w*h],0, 2 * Math.PI);
-    const mag = tf.randomUniform([w*h],config.initMagnitude[0], config.initMagnitude[1]);
+    // const mag = tf.randomUniform([w*h],config.initMagnitude[0], config.initMagnitude[1]);
+    const mag = tf.randomNormal([w*h],config.initMagnitude[0], config.initMagnitude[1]);
 
     return dir.cos().mul(mag).stack(dir.sin().mul(mag),1)
   })
@@ -22,7 +23,7 @@ export function newParticles(config) {
   return tf.tidy(() => {
     const posx = tf.randomUniform([config.particleCount], 0, config.width, 'float32')
     const posy = tf.randomUniform([config.particleCount], 0, config.height, 'float32')
-    const vel  = tf.randomUniform([config.particleCount, 2], -1, 1, 'float32')
+    const vel  = tf.zeros([config.particleCount, 2], 'float32')
 
     const pos = posx.stack(posy,1);
 
