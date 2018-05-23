@@ -6,6 +6,9 @@ export function drawParticles(canvas, [posTensor, velTensor] , config) {
   const {width,height} = config;
   const bytes = new Uint8ClampedArray(width * height * 4); 
 
+  const velScale = 2 * config.maxVel*config.maxVel
+
+  // TODO use tensorflow to parrellize colors
   tf.tidy(() => {
     // const positions  = posTensor.data();
     // const velocities = velTensor.data();
@@ -13,15 +16,17 @@ export function drawParticles(canvas, [posTensor, velTensor] , config) {
     const particleCount = posTensor.shape[0]
 
     // Transform to I index equivlanet for imageBuffer insertion
-    const posIdx = posTensor.xytoI(width);
+    const posIdx = posTensor.xytoI(width).mul(tf.scalar(4, 'int32'));
     // Transform to a magnitude value to be used as color
-    const velMag =    velTensor.magnitude();
+    const colors =  velTensor.div(tf.scalar(config.maxVel))
 
-    for(let i = 0, imgIndex, color; i < posIdx.size; i++) {
-      imgIndex = posIdx.get(i) * 4
+    for(let i = 0, imgIndex, red, green; i < posIdx.size; i++) {
+      imgIndex = posIdx.get(i)
+      red      = colors.get(2*i)
+      green      = colors.get(2*i + 1)
 
-      bytes[imgIndex] = 256
-      bytes[imgIndex + 1] = 1;
+      bytes[imgIndex] = 125 + 125 * red 
+      bytes[imgIndex + 2] = 125 + 125 * green;
       bytes[imgIndex + 3] = 255;
     }
 
