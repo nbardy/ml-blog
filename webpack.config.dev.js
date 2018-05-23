@@ -8,7 +8,6 @@ module.exports = {
     // Babel
     "babel-polyfill", 
     // App
-    './src/app.js', 
     // Dev Profile
     './dev/src/dev.js'
   ],

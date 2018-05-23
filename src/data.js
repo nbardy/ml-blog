@@ -12,8 +12,13 @@ export function newField(config) {
 
   return tf.tidy(() => {
     const dir = tf.randomUniform([w*h],0, 2 * Math.PI);
-    // const mag = tf.randomUniform([w*h],config.initMagnitude[0], config.initMagnitude[1]);
-    const mag = tf.randomNormal([w*h],config.initMagnitude[0], config.initMagnitude[1]);
+
+    const mag  = tf.randomNormal([w*h],
+      config.initForceMagnitude,
+      config.initForceStdDev,
+      'float32',
+      config.randomSeed
+    );
 
     return dir.cos().mul(mag).stack(dir.sin().mul(mag),1)
   })
@@ -23,9 +28,8 @@ export function newParticles(config) {
   return tf.tidy(() => {
     const posx = tf.randomUniform([config.particleCount], 0, config.width, 'float32')
     const posy = tf.randomUniform([config.particleCount], 0, config.height, 'float32')
-    const vel  = tf.zeros([config.particleCount, 2], 'float32')
-
     const pos = posx.stack(posy,1);
+    const vel = tf.zerosLike(pos);
 
     return [pos,vel];
   })
@@ -57,10 +61,10 @@ export function updateParticles([pos, vel],field, dt, config) {
 
     // Cap Vels
     const velX = updatedVel.slice([0,0],[-1,1])
-      .clipByValue(-config.maxVel, config.maxVel)
+      .clipByValue(-config.maximumVelocity, config.maximumVelocity)
 
     const velY = updatedVel.slice([0,1],[-1,1])
-      .clipByValue(-config.maxVel, config.maxVel)
+      .clipByValue(-config.maximumVelocity, config.maximumVelocity)
 
     const updatePosWrapped = posX.concat(posY,1)
     const updateVelCapped  = velX.concat(velY,1)
