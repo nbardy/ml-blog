@@ -56,31 +56,34 @@ function start(config) {
   run(particles)
 }
 
-const gui = new dat.GUI(
-  {
-    name: "Force Field",
-  }
-);
 
 const DEV_CONFIG = {
   width:   700,
   height:  700,
   density: 1/100,
-  forceMagnitude: 1/1000,
   initVelMagnitude: 12.1,
   initVelStdDev: 0.1,
-  initForceMagnitude: 1.2,
-  initForceStdDev: 0.1,
-  maximumVelocity: 20,
-  particleCount: 1000,
-  randomSeed: 123
+  initForceMagnitude: 0,
+  initForceStdDev: 2.1,
+  resetRate: 0.01,
+  forceMagnitude: 2,
+  velMagnitude: 1/10,
+  maximumVelocity: 23,
+  particleCount: 5000,
+  randomSeed: 50
 }
 
-gui.add(DEV_CONFIG, "initVelMagnitude", 0,20,0.1)
-gui.add(DEV_CONFIG, "initVelStdDev", 0,10,0.1)
+function makeGUI() {
+  const gui = new dat.GUI( { name: "Force Field" });
+  gui.add(DEV_CONFIG, "forceMagnitude", 0,10)
+  gui.add(DEV_CONFIG, "velMagnitude", 0,1)
+  gui.add(DEV_CONFIG, "maximumVelocity", 0, 60)
+  // gui.add(DEV_CONFIG, "randomSeed", 0, 100, 1)
+}
 
 if(module.hot) {
   clean()
+  makeGUI()
   module.hot.accept();
   start(DEV_CONFIG)
 }

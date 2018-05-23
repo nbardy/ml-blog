@@ -18,7 +18,7 @@ export function drawParticles(canvas, [posTensor, velTensor] , config) {
     // Transform to I index equivlanet for imageBuffer insertion
     const posIdx = posTensor.xytoI(width).mul(tf.scalar(4, 'int32'));
     // Transform to a magnitude value to be used as color
-    const colors =  velTensor.div(tf.scalar(config.maxVel))
+    const colors =  velTensor.div(tf.scalar(config.maximumVelocity))
 
     for(let i = 0, imgIndex, red, green; i < posIdx.size; i++) {
       imgIndex = posIdx.get(i)

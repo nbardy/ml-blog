@@ -28,13 +28,8 @@ export function newParticles(config) {
   return tf.tidy(() => {
     const posx = tf.randomUniform([config.particleCount], 0, config.width, 'float32')
     const posy = tf.randomUniform([config.particleCount], 0, config.height, 'float32')
-    const vel  = tf.randomNormal([config.particleCount, 2], 
-      config.initVelMagnitude,
-      config.initVelStdDev,
-      'float32',
-      config.randomSeed)
-
     const pos = posx.stack(posy,1);
+    const vel = tf.zerosLike(pos);
 
     return [pos,vel];
   })
