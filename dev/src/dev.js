@@ -1,6 +1,7 @@
 import {newElement}            from '~/dom.js'
 import {newField, newParticles, updateParticles}              
                                from '~/data.js'
+import {closeToMiddle}         from '~/ml.js'
 import {drawParticles}         from '~/draw.js'
 import css from '~/file.css';
 import * as tf from '@tensorflow/tfjs'
@@ -25,8 +26,10 @@ function start(config) {
   const dt = 1;
   const canvas = newElement("canvas", {width: config.width, height: config.height})
 
+  const optimizer = tf.train.sgd(0.1);
+
   // The force field
-  const field = newField(config)
+  const field = tf.variable(newField(config));
   // The particles of the simulation
   var particles = newParticles(config)
 
@@ -41,11 +44,22 @@ function start(config) {
 
   killPrevious = function() { running = false; }
 
+  var updatedParticles;
   function run(particles) {
     drawParticles(canvas, particles, config);
-    const updatedParticles = updateParticles(particles, field, 1, config);
-    particles[0].dispose()
-    particles[1].dispose()
+    updatedParticles = updateParticles(particles, field, 1, config);
+
+    optimizer.minimize(function() {
+      // const val = closeToMiddle(updatedParticles[0], config);
+      const val = closeToMiddle(updateParticles(particles, field, 1, config)[0], config);
+      // particles[0].dispose()
+      // particles[1].dispose()
+
+      return  val
+    })
+
+
+
 
     if(running) {
       requestAnimationFrame(
@@ -69,7 +83,7 @@ const DEV_CONFIG = {
   forceMagnitude: 2,
   velMagnitude: 1/10,
   maximumVelocity: 23,
-  particleCount: 5000,
+  particleCount: 50,
   randomSeed: 50
 }
 

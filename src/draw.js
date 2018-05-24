@@ -22,8 +22,8 @@ export function drawParticles(canvas, [posTensor, velTensor] , config) {
 
     for(let i = 0, imgIndex, red, green; i < posIdx.size; i++) {
       imgIndex = posIdx.get(i)
-      red      = colors.get(2*i)
-      green      = colors.get(2*i + 1)
+      red      = colors.get(i,0)
+      green      = colors.get(i,1)
 
       bytes[imgIndex] = 125 + 125 * red 
       bytes[imgIndex + 2] = 125 + 125 * green;
