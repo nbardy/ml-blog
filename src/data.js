@@ -35,7 +35,13 @@ export function newParticles(config) {
   })
 }
 
-export function updateParticles([pos, vel],field, dt, config) {
+export function clipField(field,config) {
+  return tf.tidy(() => {
+    return field.clipByValue(-config.maximumForce, config.maximumForce);
+  })
+}
+
+export function updateParticles([pos, vel], field, dt, config) {
   return tf.tidy(() => {
     // Scale down to fit force field dimensions
     const scaled = tf.round(pos.mul(tf.scalar(config.density))).toInt()
@@ -44,7 +50,10 @@ export function updateParticles([pos, vel],field, dt, config) {
     const indices = scaled.xytoI(config.width * config.density);
 
     // All of the force which should effect each particle
-    const forces = field.gather(indices);
+    const forces = field
+      .sigmoid()
+      .sub(tf.scalar(0.5))
+      .gather(indices);
 
     // Forces applied with relevant magnitude
     const forcesScaled = forces.mul(tf.scalar(config.forceMagnitude));
@@ -72,4 +81,3 @@ export function updateParticles([pos, vel],field, dt, config) {
     return [updatePosWrapped, updateVelCapped];
   })
 }
-

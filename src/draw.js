@@ -1,12 +1,13 @@
 import '~/helpers.js';
 import * as tf from '@tensorflow/tfjs';
+import img from '~/arrow.png';
 
-
-export function drawParticles(canvas, [posTensor, velTensor] , config) {
+export function drawParticles(imgData, [posTensor, velTensor] , config) {
   const {width,height} = config;
-  const bytes = new Uint8ClampedArray(width * height * 4); 
-
   const velScale = 2 * config.maxVel*config.maxVel
+
+  const bytes = imgData.data;
+  // const bytes = new Uint8ClampedArray(width * height * 4); 
 
   // TODO use tensorflow to parrellize colors
   tf.tidy(() => {
@@ -30,10 +31,68 @@ export function drawParticles(canvas, [posTensor, velTensor] , config) {
       bytes[imgIndex + 3] = 255;
     }
 
-    const ctx = canvas.getContext('2d');
     const imageData = new ImageData(bytes, width, height)
-    ctx.putImageData(imageData, 0, 0)
   })
 
   return bytes;
+}
+
+export function drawRotated(ctx,image,x,y,width,height,r) {
+  ctx.translate(x, y);
+  ctx.rotate(r);
+  ctx.drawImage(image, -width / 2, -height / 2, width, height);
+  ctx.rotate(-r);
+  ctx.translate(-x, -y);
+}
+
+var arrowImage = new Image();
+arrowImage.src = img;
+export function drawField(canvas, field, config) {
+  const totalx = config.width * config.density;
+  const totaly = config.height * config.density;
+
+  const imgWidth = 1 / config.density;
+  const imgHeight = 1 / config.density;
+
+  var x, y, i, forcex, forcey, xmag, ymag, r;
+  const ctx = canvas.getContext("2d");
+
+  // ctx.translate(-imgHeight/2,imgWidth/2);
+
+  for(var y = 0; y < totaly; y++) {
+    // ctx.translate(imgHeight, 0);
+
+    for(var x = 0; x < totalx; x++) {
+      i = x + y * totalx;
+
+      xmag = field.get(i,0),
+      ymag = field.get(i,1);
+      r = Math.atan2(ymag, xmag);
+
+      // ctx.translate(0, imgWidth);
+      // ctx.rotate(r);
+      // ctx.drawImage(arrowImage, -imgWidth/2, -imgHeight/2, imgWidth, imgHeight)
+      drawRotated(ctx, 
+        arrowImage, 
+        x * imgWidth + imgWidth/2, 
+        y  * imgHeight + imgHeight/2, 
+        imgWidth, 
+        imgHeight,
+        r)
+    }
+  }
+}
+
+export function drawScene(canvas, particles, field, config) {
+  const ctx = canvas.getContext('2d');
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+  if(config.drawField) {
+    drawField(canvas, field, config);
+  }
+
+  const imgData = ctx.getImageData(0,0,canvas.width,canvas.height);
+
+  drawParticles(imgData, particles, config);
+  ctx.putImageData(imgData, 0, 0)
 }

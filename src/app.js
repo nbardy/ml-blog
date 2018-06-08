@@ -6,8 +6,6 @@ import css from '~/file.css';
 import * as tf from '@tensorflow/tfjs'
 import * as dat from 'dat.gui';
 
-
-
 function start(config) {
   // dt is amount of change in time 
   const dt = 1;
