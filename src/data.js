@@ -59,7 +59,7 @@ export function updateParticles([pos, vel], field, dt, config) {
     const forcesScaled = forces.mul(tf.scalar(config.forceMagnitude));
 
     const updatedVel = vel.add(forcesScaled)
-    const updatedPos = pos.add(updatedVel.mul(tf.scalar(config.velMagnitude)))
+    const updatedPos = pos.add(updatedVel.mul(tf.scalar(config.momentum)))
 
     // Wrap Positions
     const posX = updatedPos.slice([0,0],[-1,1])

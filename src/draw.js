@@ -12,8 +12,7 @@ export function drawParticles(imgData, [posTensor, velTensor] , config) {
   // TODO use tensorflow to parrellize colors
   tf.tidy(() => {
     // const positions  = posTensor.data();
-    // const velocities = velTensor.data();
-
+    // const velocities = velTensor.data(); 
     const particleCount = posTensor.shape[0]
 
     // Transform to I index equivlanet for imageBuffer insertion
@@ -47,6 +46,7 @@ export function drawRotated(ctx,image,x,y,width,height,r) {
 
 var arrowImage = new Image();
 arrowImage.src = img;
+
 export function drawField(canvas, field, config) {
   const totalx = config.width * config.density;
   const totaly = config.height * config.density;
@@ -69,16 +69,15 @@ export function drawField(canvas, field, config) {
       ymag = field.get(i,1);
       r = Math.atan2(ymag, xmag);
 
-      // ctx.translate(0, imgWidth);
-      // ctx.rotate(r);
-      // ctx.drawImage(arrowImage, -imgWidth/2, -imgHeight/2, imgWidth, imgHeight)
-      drawRotated(ctx, 
-        arrowImage, 
-        x * imgWidth + imgWidth/2, 
-        y  * imgHeight + imgHeight/2, 
-        imgWidth, 
-        imgHeight,
-        r)
+      if(config.drawField) { 
+        drawRotated(ctx, 
+          arrowImage, 
+          x * imgWidth + imgWidth/2, 
+          y  * imgHeight + imgHeight/2, 
+          imgWidth * 0.2, 
+          imgHeight * 0.2,
+          r)
+      }
     }
   }
 }
