@@ -11,6 +11,7 @@ import * as tf from '@tensorflow/tfjs'
 import * as dat from 'dat.gui';
 
 import {seededRandom} from '~/rand.js'
+import * as learn from '~/learn.js'
 
 // console.log(seededRandom(4)())
 
@@ -36,13 +37,12 @@ function start(config) {
   const dt = 1;
   const canvas = newElement("canvas", {width: config.width, height: config.height})
 
-  // const optimizer = tf.train.sgd(config.learningRate);
-  const optimizer = tf.train.momentum(config.learningRate,0.002);
-
   // The force field
   const field = tf.variable(newField(config));
   // The particles of the simulation
   var particles = newParticles(config)
+
+  const optimizer = learn.randomOptimizer(field)
 
   drawScene(canvas, particles, field, config)
   const board = document.createElement("div");
@@ -65,16 +65,20 @@ function start(config) {
 
   function run(particles) {
     // for(var i = 0; i < config.updatesPerOptimizer; i++) {
-    const updatedParticles = updateParticles(particles, field, 1, config);
+    const updatedParticles = 
+      updateParticles(particles, optimizer.values, 1, config);
     generation++;
+
     if((generation % config.drawRate) == 0) {
-      drawScene(canvas, updatedParticles, field, config);
+      drawScene(canvas, updatedParticles, optimizer.values, config);
     }
 
     // const val = closeToMiddle(updatedParticles[0], config);
     // return val.add(val2);
     // const dist = distanceTraveled(particles[0], updatedParticles[0])
     // window.dist = dist.get([0]);
+    //
+    optimizer.minimize(0.4);
 
 
     /* Memory Cleanup */
@@ -101,20 +105,19 @@ function start(config) {
 
 window.tf = tf;
 
-
 const DEV_CONFIG = {
   width:   500,
   height:  500,
   density: 1/100,
   initVelMagnitude: 12.1,
   initVelStdDev: 0.1,
-  initForceMagnitude: 0,
+  initForceMagnitude: 5,
   initForceStdDev: 5.1,
   resetRate: 0.01,
   forceMagnitude: 3.2,
-  velMagnitude: 0.141,
+  momentum: 0.141,
   maximumVelocity: 22,
-  maximumForce: 5,
+  maximumForce: 15,
   particleCount: 400,
   learningRate: 0.11,
   updatesPerOptimizer: 1,
@@ -128,7 +131,7 @@ const DEV_CONFIG = {
 function makeGUI() {
   const gui = new dat.GUI( { name: "Force Field" });
   gui.add(DEV_CONFIG, "forceMagnitude", 0,10)
-  gui.add(DEV_CONFIG, "velMagnitude", 0,1)
+  gui.add(DEV_CONFIG, "momentum", 0,1)
   gui.add(DEV_CONFIG, "maximumVelocity", 0, 60)
   gui.add(DEV_CONFIG, "drawRate", 0, 200, 1);
   // gui.add(DEV_CONFIG, "randomSeed", 0, 100, 1)
@@ -136,6 +139,7 @@ function makeGUI() {
 
 if(module.hot) {
   clean()
+
   makeGUI()
   module.hot.accept();
   start(DEV_CONFIG)
