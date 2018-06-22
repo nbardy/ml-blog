@@ -44,7 +44,7 @@ export function clipField(field,config) {
 export function updateParticles([pos, vel], field, dt, config) {
   return tf.tidy(() => {
     // Scale down to fit force field dimensions
-    const scaled = tf.round(pos.mul(tf.scalar(config.density))).toInt()
+    const scaled = tf.floor(pos.mul(tf.scalar(config.density))).toInt()
 
     // No gather_nd in tgjs so things must be flattened from x,y => i index
     const indices = scaled.xytoI(config.width * config.density);
@@ -58,8 +58,9 @@ export function updateParticles([pos, vel], field, dt, config) {
     // Forces applied with relevant magnitude
     const forcesScaled = forces.mul(tf.scalar(config.forceMagnitude));
 
-    const updatedVel = vel.add(forcesScaled)
-    const updatedPos = pos.add(updatedVel.mul(tf.scalar(config.momentum)))
+    const updatedVel = vel.add(forcesScaled).mul(tf.scalar(config.friction))
+    const updatedPos = pos.add(updatedVel)
+
 
     // Wrap Positions
     const posX = updatedPos.slice([0,0],[-1,1])

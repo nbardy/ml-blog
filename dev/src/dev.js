@@ -67,6 +67,8 @@ function start(config) {
   var counter;
 
   function run(particles) {
+    // console.log("particles")
+    // particles[0].print()
     // for(var i = 0; i < config.updatesPerOptimizer; i++) {
     const updatedParticles = 
       updateParticles(particles, field, 1, config);
@@ -76,28 +78,36 @@ function start(config) {
       drawScene(canvas, updatedParticles, field, config);
     }
 
-    optimizer.minimize(() => {
-      const val = closeToMiddle(updatedParticles[0], config);
-      return val;
-    });
 
-    // return val.add(val2);
-    // const dist = distanceTraveled(particles[0], updatedParticles[0])
-    //
 
 
     /* Memory Cleanup */
-    if((generation % config.sampleRate) == 0) {
-      storedStates.push(particles);
+    // if((generation % config.sampleRate) == 0) {
+    //   storedStates.push(particles);
 
-      if((generation % config.trainRate) == 0) {
-        clearStates(storedStates);
-      }
+    //   if((generation % config.trainRate) == 0) {
 
-    } else {
+    //     optimizer.minimize(() => {
+    //       return tf.tidy(() =>  {
+    //         const dist = distanceTraveled(particles[0], updatedParticles[0])
+
+    //         const val = closeToMiddle(updatedParticles[0], config);
+    //         console.log("U")
+    //         updatedParticles[0].print()
+    //         const val2 = closeToMiddle(updatedParticles[1], config);
+    //         val.print()
+    //         val2.print()
+    //         return val.add(val2);
+    //       });
+    //     });
+
+    //     clearStates(storedStates);
+    //   }
+
+    // } else {
       particles[0].dispose();
       particles[1].dispose();
-    }
+    // }
 
     if(running) {
       requestAnimationFrame(
@@ -119,16 +129,16 @@ const DEV_CONFIG = {
   initForceMagnitude: 0,
   initForceStdDev: 5.1,
   resetRate: 0.01,
-  forceMagnitude: 3.2,
-  momentum: 0.141,
-  maximumVelocity: 22,
+  forceMagnitude: 1.2,
+  friction: 0.941,
+  maximumVelocity: 5,
   maximumForce: 15,
-  particleCount: 2000,
-  learningRate: 0.011,
+  particleCount: 300,
+  learningRate: 0.00011,
   updatesPerOptimizer: 1,
   drawRate: 1,
-  sampleRate: 20,
-  trainRate: 200,
+  sampleRate: 25,
+  trainRate: 50,
   randomSeed: 50,
   drawField: false
 }
@@ -136,7 +146,7 @@ const DEV_CONFIG = {
 function makeGUI() {
   const gui = new dat.GUI( { name: "Force Field" });
   gui.add(DEV_CONFIG, "forceMagnitude", 0,10)
-  gui.add(DEV_CONFIG, "momentum", 0,1)
+  gui.add(DEV_CONFIG, "friction", 0,1)
   gui.add(DEV_CONFIG, "maximumVelocity", 0, 60)
   gui.add(DEV_CONFIG, "drawRate", 0, 200, 1);
   gui.add(DEV_CONFIG, "drawField");

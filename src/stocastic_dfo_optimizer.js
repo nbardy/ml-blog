@@ -34,6 +34,7 @@ export class StocasticOptimizer extends DFOptimizer {
     tf.tidy(() => {
       // If there is no previous result calucate loss and store
       const loss = f();
+      console.log("loss", loss.print())
       var lossChange;
 
       // 0 lossChange is good, 1 loss change is bad
@@ -45,6 +46,8 @@ export class StocasticOptimizer extends DFOptimizer {
         //  I should update the velocity based on resultDifference and momentum  and entropy.
         //  I should 
         // Result has improved
+        // TODO: CHange randomUniform to be based on size of the thing it's affecting.
+        //  e.x. 35% change
         const change = 
           tf.randomUniform(variable.value.shape, -1, 1)
           .mul(tf.scalar(this.entropy))
