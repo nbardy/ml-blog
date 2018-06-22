@@ -31,3 +31,5 @@ export function distanceTraveledInverse(v1,v2) {
     return v1.sub(v2).softplus().add(tf.scalar(-0.5)).mean();
   });
 }
+
+

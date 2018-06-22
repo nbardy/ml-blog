@@ -12,6 +12,8 @@ import * as dat from 'dat.gui';
 
 import {seededRandom} from '~/rand.js'
 import * as learn from '~/learn.js'
+import * as dfo from '~/stocastic_dfo_optimizer.js'
+
 
 // console.log(seededRandom(4)())
 
@@ -42,7 +44,8 @@ function start(config) {
   // The particles of the simulation
   var particles = newParticles(config)
 
-  const optimizer = learn.randomOptimizer(field)
+  // const optimizer = learn.randomOptimizer(field, 0.001)
+  const optimizer = dfo.stocastic(config.learningRate, [field]);
 
   drawScene(canvas, particles, field, config)
   const board = document.createElement("div");
@@ -66,19 +69,21 @@ function start(config) {
   function run(particles) {
     // for(var i = 0; i < config.updatesPerOptimizer; i++) {
     const updatedParticles = 
-      updateParticles(particles, optimizer.values, 1, config);
+      updateParticles(particles, field, 1, config);
     generation++;
 
     if((generation % config.drawRate) == 0) {
-      drawScene(canvas, updatedParticles, optimizer.values, config);
+      drawScene(canvas, updatedParticles, field, config);
     }
 
-    // const val = closeToMiddle(updatedParticles[0], config);
+    optimizer.minimize(() => {
+      const val = closeToMiddle(updatedParticles[0], config);
+      return val;
+    });
+
     // return val.add(val2);
     // const dist = distanceTraveled(particles[0], updatedParticles[0])
-    // window.dist = dist.get([0]);
     //
-    optimizer.minimize(0.4);
 
 
     /* Memory Cleanup */
@@ -108,24 +113,24 @@ window.tf = tf;
 const DEV_CONFIG = {
   width:   500,
   height:  500,
-  density: 1/100,
+  density: 1/50,
   initVelMagnitude: 12.1,
   initVelStdDev: 0.1,
-  initForceMagnitude: 5,
+  initForceMagnitude: 0,
   initForceStdDev: 5.1,
   resetRate: 0.01,
   forceMagnitude: 3.2,
   momentum: 0.141,
   maximumVelocity: 22,
   maximumForce: 15,
-  particleCount: 400,
-  learningRate: 0.11,
+  particleCount: 2000,
+  learningRate: 0.011,
   updatesPerOptimizer: 1,
   drawRate: 1,
   sampleRate: 20,
   trainRate: 200,
   randomSeed: 50,
-  drawField: true
+  drawField: false
 }
 
 function makeGUI() {
@@ -134,6 +139,7 @@ function makeGUI() {
   gui.add(DEV_CONFIG, "momentum", 0,1)
   gui.add(DEV_CONFIG, "maximumVelocity", 0, 60)
   gui.add(DEV_CONFIG, "drawRate", 0, 200, 1);
+  gui.add(DEV_CONFIG, "drawField");
   // gui.add(DEV_CONFIG, "randomSeed", 0, 100, 1)
 }
 
