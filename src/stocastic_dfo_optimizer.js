@@ -5,9 +5,10 @@ export class DFOptimizer {
 }
 
 export class StocasticOptimizer extends DFOptimizer {
-  constructor(learningRate, varList) {
+  constructor(varList, config) {
     super();
-    this.learningRate = learningRate;
+    this.learningRate = tf.scalar(config.learningRate);
+    this.entropyDecay = config.entropyDecay;
     this.currentGrads = [];
     this.previousLoss = tf.scalar(Number.MAX_VALUE);
     this.entropy = 1;
@@ -31,7 +32,7 @@ export class StocasticOptimizer extends DFOptimizer {
   // f is the loss function. minimize tries to bring loss result closer to 0
   // TODO: Add tidy/dipose
   minimize(f) {
-    tf.tidy(() => {
+    return tf.tidy(() => {
       // If there is no previous result calucate loss and store
       const loss = f();
       var lossChange;
@@ -45,13 +46,16 @@ export class StocasticOptimizer extends DFOptimizer {
         //  I should update the velocity based on resultDifference and momentum  and entropy.
         //  I should 
         // Result has improved
-        const change = 
+        const perChange = 
           tf.randomUniform(variable.value.shape, -1, 1)
-          .mul(tf.scalar(this.entropy))
+          .mul(this.learningRate)
+
+        const change = value.mul(perChange)
 
         var newValue;
+        const randomChance = Math.random();
 
-        if(lossChange.dataSync()[0] < 0) {
+        if((randomChance < this.entropy) || (lossChange.dataSync()[0] < 0)) {
           newValue = value.add(change);
           this.previousLoss = tf.keep(loss);
         } else {
@@ -62,13 +66,15 @@ export class StocasticOptimizer extends DFOptimizer {
 
         variable.value.assign(newValue);
 
-        this.entropy = this.entropy * (1 - this.learningRate);
+        this.entropy = this.entropy * this.entropyDecay;
       }
+
+      return loss;
     })
   }
 }
 
-export function stocastic(learningRate, varList) {
-  return new StocasticOptimizer(learningRate, varList);
+export function stocastic(varList, config) {
+  return new StocasticOptimizer(varList, config);
 }
 

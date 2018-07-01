@@ -67,6 +67,8 @@ export function drawField(canvas, field, config) {
 
       xmag = field.get(i,0),
       ymag = field.get(i,1);
+      // TODO: Do the math here on GPU
+      const mag = Math.min(0.4,Math.sqrt(xmag * xmag + ymag*ymag))
       r = Math.atan2(ymag, xmag);
 
       if(config.drawField) { 
@@ -74,8 +76,8 @@ export function drawField(canvas, field, config) {
           arrowImage, 
           x * imgWidth + imgWidth/2, 
           y  * imgHeight + imgHeight/2, 
-          imgWidth * 0.2, 
-          imgHeight * 0.2,
+          imgWidth * mag, 
+          imgHeight * mag,
           r)
       }
     }

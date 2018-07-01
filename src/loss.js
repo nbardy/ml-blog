@@ -1,6 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
 
-const difference = 200;
+const difference = 100;
 
 /* Scoring functions */
 
@@ -16,6 +16,21 @@ export function closeToMiddle(points, config) {
     // t.print()
 
     return t;
+  });
+}
+
+// Returns a tf.scalar result from 0 -> 1 indicating the percent of points in the desired area
+export function percentInZone(points, config) {
+  return tf.tidy(() => {
+    const point = tf.tensor1d([config.width / 2, config.height / 2]);
+
+    const diffs = points.squaredDifference(point);
+
+    const percent = 
+      diffs.sum(1).sqrt().less(tf.scalar(difference)).toFloat().sum().div(tf.scalar(config.particleCount))
+    // t.print()
+
+    return tf.scalar(1).sub(percent);
   });
 }
 
