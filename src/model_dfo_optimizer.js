@@ -4,32 +4,29 @@ import * as tf from '@tensorflow/tfjs'
 export class ModelOptimizer {
 
   // initialModel(variable) {
-    // const input = tf.input({shape: variable.shape});
-
-    // // First dense layer uses relu activation.
-    // const denseLayer1 = tf.layers.dense({units: variable.length, activation: 'relu'});
-    // // Second dense layer uses softmax activation.
-    // const denseLayer2 = tf.layers.dense({units: 1, activation: 'softmax'});
-
-    // // Obtain the output symbolic tensor by applying the layers on the input.
-    // const output = denseLayer2.apply(denseLayer1.apply(input));
-
-    // // Create the model based on the inputs.
-    // const model = tf.model({inputs: input, outputs: output});
-
-    // model.compile({optimizer: 'sgd', loss: 'meanSquaredError'})
     // return model;
   // }
 
   initialModel(variable) {
-    const model = tf.sequential();
+    const input = tf.input({shape: variable.shape});
 
-    // First layer must have an input shape defined.
-    model.add(tf.layers.dense({units: 32, inputShape: variable.shape}));
-    // Afterwards, TF.js does automatic shape inference.
-    model.add(tf.layers.dense({units: 4}));
+    variable.print(true)
+    // First dense layer uses relu activation.
+    const denseLayer1 = tf.layers.dense({units: 8, activation: 'relu'});
+    // Second dense layer uses softmax activation.
+    const denseLayer2 = tf.layers.dense({units: 2, activation: 'softmax'});
+
+    const lstmLayer = tf.layers.lstm({units: 1, returnSequences: true});
+    // Obtain the output symbolic tensor by applying the layers on the input.
+    const output = lstmLayer.apply(denseLayer2.apply(denseLayer1.apply(input)));
+
+    // Create the model based on the inputs.
+    const model = tf.model({inputs: input, outputs: output});
+
 
     model.compile({optimizer: 'sgd', loss: 'meanSquaredError'})
+    model.summary()
+    console.log(JSON.stringify(model.outputs[0].shape));
 
     return model;
   }
