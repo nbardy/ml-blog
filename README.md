@@ -1,12 +1,13 @@
 # Force Field Art
 
 ## Introduction 
-Inspired by advances in machine learning training running on the GPU in a browser. I've become motivated to build art and demo applications of machine learning to explore the field and help pass on what I learn to others. This demo is a force field which moves particles around that is trained based on different evaluation particles of function position. The goal is 
+Inspired by advances in machine learning training running on the GPU in a browser. I've become motivated to build art and demo applications of machine learning to explore the field and help pass on what I learn to others. This demo is a force field which moves particles around that is trained based on different evaluation particles of function position. The goal is to create emergent art by giving the system sets of constraints and seeing what it comes up with.
 
-# Current state
+# Current State
+Currently it optimizes for getting all particles near the middle. With the current settings in the repo the network converges on a strong solutions around 50% of the time. Able to achieve 0 or near zero loss.
 
-I tried running it with tensorflow's gradient calculation. And it was able to train a reasonable simple problem(Getting all particles to the middle). But it became unusably slow when exposed to denser force fields or trying to train over multiple frames. Currently I'm reasearching and implementing some Derivate Free optimization algorithms for training. Another approach I would like to explore is calculating swift gradient estimates.
-
+# Current Work
+Researching and implements more advanced DFO solutions.
 
 # Development
 
