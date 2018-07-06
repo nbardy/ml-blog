@@ -133,13 +133,13 @@ const DEV_CONFIG = {
   momentum: 0.141,
   maximumVelocity: 22,
   maximumForce: 15,
-  particleCount: 2000,
-  learningRate: 0.41,
+  particleCount: 4000,
+  learningRate: 1.41,
   entropyDecay: 0.99,
   updatesPerOptimizer: 1,
   drawRate: 1,
   sampleRate: 1,
-  trainRate: 5,
+  trainRate: 200,
   randomSeed: 50,
   drawField: true
 }
