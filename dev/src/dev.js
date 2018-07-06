@@ -134,7 +134,7 @@ const DEV_CONFIG = {
   maximumVelocity: 22,
   maximumForce: 15,
   particleCount: 4000,
-  learningRate: 1.41,
+  learningRate: 10.41,
   entropyDecay: 0.99,
   updatesPerOptimizer: 1,
   drawRate: 1,

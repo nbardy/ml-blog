@@ -16,14 +16,13 @@ export class ModelOptimizer {
     // I don't know what I'm doing
     const lstmLayer1 = tf.layers.lstm({units: 2, returnSequences: true});
     // Second dense layer uses softmax activation.
-    const denseLayer2 = tf.layers.dense({units: 4, activation: 'softmax', useBias: true});
-    const lstmLayer2 = tf.layers.lstm({units: 1, returnSequences: true});
+    const denseLayer2 = tf.layers.dense({units: 1, activation: 'softmax', useBias: true});
     const flatten = tf.layers.flatten()
     const final = tf.layers.dense({units: 1, activation: 'relu6'})
 
     // Obtain the output symbolic tensor by applying the layers on the input.
     
-    const output = final.apply(flatten.apply(lstmLayer2.apply(denseLayer2.apply(lstmLayer1.apply(denseLayer1.apply(input))))));
+    const output = final.apply(flatten.apply(denseLayer2.apply(lstmLayer1.apply(denseLayer1.apply(input)))));
 
     // Create the model based on the inputs.
     const model = tf.model({inputs: input, outputs: output});
