@@ -12,21 +12,24 @@ export class ModelOptimizer {
 
     variable.print(true)
     // First dense layer uses relu activation.
-    const denseLayer1 = tf.layers.dense({units: 8, activation: 'relu'});
+    const denseLayer1 = tf.layers.dense({units: 4, activation: 'relu'});
+    // I don't know what I'm doing
+    const lstmLayer1 = tf.layers.lstm({units: 2, returnSequences: true});
     // Second dense layer uses softmax activation.
-    const denseLayer2 = tf.layers.dense({units: 2, activation: 'softmax'});
+    const denseLayer2 = tf.layers.dense({units: 4, activation: 'softmax', useBias: true});
+    const lstmLayer2 = tf.layers.lstm({units: 1, returnSequences: true});
+    const flatten = tf.layers.flatten()
+    const final = tf.layers.dense({units: 1, activation: 'relu6'})
 
-    const lstmLayer = tf.layers.lstm({units: 1, returnSequences: true});
     // Obtain the output symbolic tensor by applying the layers on the input.
-    const output = lstmLayer.apply(denseLayer2.apply(denseLayer1.apply(input)));
+    
+    const output = final.apply(flatten.apply(lstmLayer2.apply(denseLayer2.apply(lstmLayer1.apply(denseLayer1.apply(input))))));
 
     // Create the model based on the inputs.
     const model = tf.model({inputs: input, outputs: output});
 
 
     model.compile({optimizer: 'sgd', loss: 'meanSquaredError'})
-    model.summary()
-    console.log(JSON.stringify(model.outputs[0].shape));
 
     return model;
   }
@@ -35,8 +38,8 @@ export class ModelOptimizer {
     this.learningRate = config.learningRate;
     this.entropyDecay = config.entropyDecay;
     this.currentGrads = [];
-    this.previousLoss = tf.scalar(Number.MAX_VALUE);
     this.entropy = 1;
+    this.searchSize = config.searchSize;
 
     for(var variable of varList) {
       this.currentGrads.push({
@@ -49,7 +52,6 @@ export class ModelOptimizer {
   }
 
   dispose() {
-    this.previousLoss.dispose()
     for(var grad of this.currentGrads) {
       grad.lastChange.dispose();
     }
@@ -61,43 +63,41 @@ export class ModelOptimizer {
     return tf.tidy(() => {
       // If there is no previous result calucate loss and store
       const loss = f();
+      const lossKeep = tf.keep(tf.stack([f()]));
 
-      var lossChange;
-
-      // 0 lossChange is good, 1 loss change is bad
-      lossChange = loss.sub(this.previousLoss)
-
+      // Update Each Variable
       for(var variable of this.currentGrads) {
+        // Conform and Persist values
         const {model, velocity, value} = variable;
-        const h = model.fit(tf.stack([value]), tf.stack([loss]), 
-          {
-            batchSize: 4,
-            epochs: 3
-          })
+        const valueKeep = tf.keep(tf.stack([value]));
 
-        // for(let i = 0; i < 10; i++) {
+        // TODO: Remove this
+        // NOTE: This handle the firs iteration with no predictions, make that prediction with initial data.
+        if(variable.prediction) {
+        const predictionKeep = tf.keep(tf.stack([variable.prediction.sub(loss)]));
+
+        // Fit Loss prediction model with last generation
+        const h = model.fit(valueKeep, predictionKeep, { batchSize: 4, epochs: 3 });
+          // h.then(function(_) { loss.dispose() });
+          }
+
+        const potentialNewValues = [];
+        for(let i = 0; i < this.searchSize; i++) {
           const change = 
-          tf.randomUniform(variable.value.shape, -1, 1)
-          .mul(tf.scalar(this.learningRate))
-        // }
+            tf.randomUniform(variable.value.shape, -1, 1)
+            .mul(tf.scalar(this.learningRate))
 
-
-        var newValue;
-
-        // TODO: Speed this up.
-        if(lossChange.dataSync()[0] < 0) {
-          newValue = value.add(change);
-          this.previousLoss = tf.keep(loss);
-        } else {
-          newValue = value.sub(variable.lastChange).add(change);
+          potentialNewValues.push(value.add(change))
         }
 
-        variable.lastChange.assign(change)
+        const predictions = model.predict(tf.stack(potentialNewValues))
+        const newValue = potentialNewValues[predictions.argMax().dataSync()[0]]
+        const predictionForNewValue = predictions.max();
 
         variable.value.assign(newValue);
+        variable.prediction = tf.keep(predictionForNewValue);
 
         this.entropy = this.entropy * this.entropyDecay;
-
         return loss;
       }
     })
