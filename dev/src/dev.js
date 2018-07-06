@@ -139,9 +139,10 @@ const DEV_CONFIG = {
   updatesPerOptimizer: 1,
   drawRate: 1,
   sampleRate: 1,
-  trainRate: 20,
+  trainRate: 200,
   randomSeed: 50,
-  searchSize: 10,
+  searchSize: 1,
+  epochs: 1,
   drawField: true
 }
 

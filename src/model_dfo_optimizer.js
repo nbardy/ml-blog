@@ -21,12 +21,11 @@ export class ModelOptimizer {
     const final = tf.layers.dense({units: 1, activation: 'relu6'})
 
     // Obtain the output symbolic tensor by applying the layers on the input.
-    
+    // TODO: Do some research on what model this should be.
     const output = final.apply(flatten.apply(denseLayer2.apply(lstmLayer1.apply(denseLayer1.apply(input)))));
 
     // Create the model based on the inputs.
     const model = tf.model({inputs: input, outputs: output});
-
 
     model.compile({optimizer: 'sgd', loss: 'meanSquaredError'})
 
@@ -39,6 +38,7 @@ export class ModelOptimizer {
     this.currentGrads = [];
     this.entropy = 1;
     this.searchSize = config.searchSize;
+    this.epochs = config.epochs
 
     for(var variable of varList) {
       this.currentGrads.push({
@@ -62,7 +62,7 @@ export class ModelOptimizer {
     return tf.tidy(() => {
       // If there is no previous result calucate loss and store
       const loss = f();
-      const lossKeep = tf.keep(tf.stack([f()]));
+      const actualLoss = tf.keep(tf.stack([f()]));
 
       // Update Each Variable
       for(var variable of this.currentGrads) {
@@ -73,10 +73,10 @@ export class ModelOptimizer {
         // TODO: Remove this
         // NOTE: This handle the firs iteration with no predictions, make that prediction with initial data.
         if(variable.prediction) {
-        const predictionKeep = tf.keep(tf.stack([variable.prediction.sub(loss)]));
+        const predictionError = tf.keep(tf.stack([variable.prediction.sub(loss)]));
 
         // Fit Loss prediction model with last generation
-        const h = model.fit(valueKeep, predictionKeep, { batchSize: 4, epochs: 3 });
+        const h = model.fit(valueKeep, predictionError, { batchSize: 4, epochs: this.epochs });
           // h.then(function(_) { loss.dispose() });
           }
 
