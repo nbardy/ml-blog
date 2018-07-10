@@ -41,11 +41,13 @@ export class ModelOptimizer {
     this.epochs = config.epochs
 
     for(var variable of varList) {
+      const model = this.initialModel(variable);
+      model.fit(variable, 0, { batchSize: 1, epochs: 1 });
+
       this.currentGrads.push({
-        model: this.initialModel(variable),
+        model: model,
         // Direction and momentum start at zero.
         value: variable,
-        lastChange:  tf.variable(tf.zerosLike(variable))
       })
     }
   }
