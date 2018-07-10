@@ -147,14 +147,16 @@ const DEV_CONFIG = {
   friction: 0.961,
   maximumVelocity: 12.2,
   maximumForce: 15,
-  particleCount: 2000,
-  learningRate: 0.41,
+  particleCount: 4000,
+  learningRate: 10.41,
   entropyDecay: 0.99,
   updatesPerOptimizer: 1,
   drawRate: 1,
   sampleRate: 1,
   trainRate: 200,
   randomSeed: 50,
+  searchSize: 1,
+  epochs: 10,
   drawField: true
 }
 
