@@ -153,7 +153,7 @@ const DEV_CONFIG = {
   updatesPerOptimizer: 1,
   drawRate: 1,
   sampleRate: 1,
-  trainRate: 80,
+  trainRate: 200,
   randomSeed: 50,
   drawField: true
 }
