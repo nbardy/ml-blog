@@ -1,7 +1,7 @@
 import {newElement}            from '~/dom.js'
 import {newField, newParticles, updateParticles }              
                                from '~/data.js'
-import {closeToMiddle, percentInZone, distanceTraveled}         
+import {clipField, closeToMiddle, percentInZone, distanceTraveled}         
                                from '~/loss.js'
 import {drawScene}         from '~/draw.js'
 import css from '~/file.css';
@@ -49,9 +49,12 @@ function start(config) {
   var particles = newParticles(config)
 
   // const optimizer = learn.randomOptimizer(field, 0.001)
-  const optimizer = mdfo.modelOptimizer([field], config);
+  //
+  // TODO: Change this
+  const optimizer = mdfo.modelOptimizer([field], [[lowerBound, upperBound]], config);
 
-  chart.trackOptimizer(optimizer, canvasChart)
+  // TODO; Change from trackOptimizer, to postData
+  // chart.trackOptimizer(optimizer, canvasChart)
 
   drawScene(canvas, particles, field, config)
   const board = document.createElement("div");
@@ -86,11 +89,14 @@ function start(config) {
       drawScene(canvas, updatedParticles, field, config);
     }
 
+
     if((generation % config.trainRate) == 0) {
       optimizer.minimize(() => {
-        const val = percentInZone(updatedParticles[0], config);
+        const val = closeToMiddle(updatedParticles[0], config);
         return val;
-      });
+      }
+        , 
+        (x) => { clipField(x, config) }) 
     }
 
 
@@ -137,27 +143,28 @@ window.tf = tf;
 const DEV_CONFIG = {
   width:   500,
   height:  500,
-  density: 1/100,
+  density: 1/25,
   initVelMagnitude: 12.1,
   initVelStdDev: 0.1,
   initForceMagnitude: 0,
   initForceStdDev: 5.1,
+  // Make this work
   resetRate: 0.01,
-  forceMagnitude: 5.2,
-  friction: 0.961,
-  maximumVelocity: 12.2,
+  forceMagnitude: 3.9,
+  friction: 0.911,
+  maximumVelocity: 7.2,
   maximumForce: 15,
-  particleCount: 4000,
-  learningRate: 10.41,
+  particleCount: 2000,
+  learningRate: 1.41,
   entropyDecay: 0.99,
   updatesPerOptimizer: 1,
   drawRate: 1,
   sampleRate: 1,
-  trainRate: 200,
+  trainRate: 120,
   randomSeed: 50,
-  searchSize: 1,
-  epochs: 10,
-  drawField: true
+  searchSize: 10,
+  epochs: 3,
+  drawField: false,
 }
 
 function makeGUI() {
