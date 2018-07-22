@@ -45,8 +45,6 @@ export function trackOptimizer(optimizer, canvas ) {
 
   const chart = new c.Chart(ctx, config);
 
-  console.log(chart)
-
   var i = 0;
 
   if((typeof optimizer.minimize) == 'function') {

@@ -16,9 +16,6 @@ import * as chart from '~/chart_optimizer.js'
 import * as sdfo from '~/stocastic_dfo_optimizer.js'
 import * as mdfo from '~/model_dfo_optimizer.js'
 
-
-// console.log(seededRandom(4)())
-
 console.log("--- Dev Mode ---")
 
 var killPrevious = function() {};
@@ -40,8 +37,8 @@ function start(config) {
   // dt is amount of change in time 
   const dt = 1;
   const chart_data = [];
-  const canvas = newElement("canvas", {width: config.width, height: config.height})
-  const canvasChart = newElement("canvas", {width: config.width, height: config.height})
+  const canvas = newElement("canvas", { width: config.width, height: config.height })
+  const canvasChart = newElement("canvas", { width: 500, height: 300})
 
   // The force field
   const field = tf.variable(newField(config));
@@ -51,10 +48,13 @@ function start(config) {
   // const optimizer = learn.randomOptimizer(field, 0.001)
   //
   // TODO: Change this
-  const optimizer = mdfo.modelOptimizer([field], [[lowerBound, upperBound]], config);
+  const optimizer = mdfo.modelOptimizer(
+    [field], 
+    [[config.lowerBound, config.upperBound]],
+    config);
 
   // TODO; Change from trackOptimizer, to postData
-  // chart.trackOptimizer(optimizer, canvasChart)
+  chart.trackOptimizer(optimizer, canvasChart)
 
   drawScene(canvas, particles, field, config)
   const board = document.createElement("div");
@@ -77,7 +77,6 @@ function start(config) {
   var counter;
 
   function run(particles) {
-    // console.log("particles")
     // particles[0].print()
     // for(var i = 0; i < config.updatesPerOptimizer; i++) {
     const updatedParticles = 
@@ -112,7 +111,6 @@ function start(config) {
     //         const dist = distanceTraveled(particles[0], updatedParticles[0])
 
     //         const val = closeToMiddle(updatedParticles[0], config);
-    //         console.log("U")
     //         updatedParticles[0].print()
     //         const val2 = closeToMiddle(updatedParticles[1], config);
     //         val.print()
@@ -141,36 +139,38 @@ function start(config) {
 window.tf = tf;
 
 const DEV_CONFIG = {
-  width:   500,
-  height:  500,
-  density: 1/25,
-  initVelMagnitude: 12.1,
+  width:   400,
+  height:  400,
+  density: 1/80,
+  initVelMagnitude: 8.1,
   initVelStdDev: 0.1,
   initForceMagnitude: 0,
   initForceStdDev: 5.1,
   // Make this work
   resetRate: 0.01,
-  forceMagnitude: 3.9,
-  friction: 0.911,
-  maximumVelocity: 7.2,
-  maximumForce: 15,
+  forceMagnitude: 3.2,
+  friction: 0.983,
+  maximumVelocity: 4.2,
+  maximumForce: 13.2,
   particleCount: 2000,
   learningRate: 1.41,
-  entropyDecay: 0.99,
+  entropyDecay: 0.96,
   updatesPerOptimizer: 1,
   drawRate: 1,
   sampleRate: 1,
-  trainRate: 120,
+  trainRate: 420,
   randomSeed: 50,
-  searchSize: 10,
-  epochs: 3,
+  searchSize: 30,
+  epochs: 1,
   drawField: false,
+  lowerBound: -0.5,
+  upperBound: 0.5
 }
 
 function makeGUI() {
   const gui = new dat.GUI( { name: "Force Field" });
   gui.add(DEV_CONFIG, "forceMagnitude", 0,10)
-  gui.add(DEV_CONFIG, "friction", 0,1)
+  gui.add(DEV_CONFIG, "friction", 0.5,1)
   gui.add(DEV_CONFIG, "maximumVelocity", 0, 60)
   gui.add(DEV_CONFIG, "drawRate", 0, 200, 1);
   gui.add(DEV_CONFIG, "drawField");
