@@ -148,9 +148,9 @@ const DEV_CONFIG = {
   initForceStdDev: 5.1,
   // Make this work
   resetRate: 0.01,
-  forceMagnitude: 3.2,
-  friction: 0.983,
-  maximumVelocity: 4.2,
+  forceMagnitude: 1.2,
+  friction: 0.987,
+  maximumVelocity: 11.2,
   maximumForce: 13.2,
   particleCount: 2000,
   learningRate: 1.41,
@@ -166,6 +166,12 @@ const DEV_CONFIG = {
   lowerBound: -0.5,
   upperBound: 0.5
 }
+
+// Others
+// Contnious 
+// fricction: 0.987 More cot
+// maxVel : 12.9
+// forceMag 1
 
 function makeGUI() {
   const gui = new dat.GUI( { name: "Force Field" });
