@@ -35,9 +35,9 @@ export function newParticles(config) {
   })
 }
 
-export function clipField(field,config) {
+export function clipField(field,mag) {
   return tf.tidy(() => {
-    return field.clipByValue(-config.maximumForce, config.maximumForce);
+    return field.clipByValue(-mag, mag);
   })
 }
 

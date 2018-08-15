@@ -1,5 +1,6 @@
 import * as tf from '@tensorflow/tfjs'
 
+
 export class DFOptimizer {
   // abstract minimize(f: () => tf.Scalar): null;
 }
@@ -7,11 +8,12 @@ export class DFOptimizer {
 export class StocasticOptimizer extends DFOptimizer {
   constructor(varList, config) {
     super();
-    this.learningRate = tf.scalar(config.learningRate);
+    this.learningRate = config.learningRate;
     this.entropyDecay = config.entropyDecay;
     this.currentGrads = [];
     this.previousLoss = tf.scalar(Number.MAX_VALUE);
     this.entropy = 1;
+    this.clip = config.clip;
 
     for(var variable of varList) {
       this.currentGrads.push({
@@ -32,10 +34,10 @@ export class StocasticOptimizer extends DFOptimizer {
   // f is the loss function. minimize tries to bring loss result closer to 0
   // TODO: Add tidy/dipose
   minimize(f) {
+    const clip = this.clip;
     return tf.tidy(() => {
       // If there is no previous result calucate loss and store
       const loss = f();
-      console.log("loss", loss.print())
       var lossChange;
 
       // 0 lossChange is good, 1 loss change is bad
@@ -48,8 +50,7 @@ export class StocasticOptimizer extends DFOptimizer {
         //  I should 
         // Result has improved
         const perChange = 
-          tf.randomNormal(variable.value.shape, -2, 2)
-          .mul(this.learningRate)
+          tf.randomNormal(variable.value.shape, 0, this.learningRate * this.entropy)
 
         const change = value.mul(perChange)
 
@@ -65,7 +66,10 @@ export class StocasticOptimizer extends DFOptimizer {
 
         variable.lastChange.assign(change)
 
-        variable.value.assign(newValue);
+        const newValueClipped = clip ? clip(newValue) : newValue 
+        newValueClipped.print()
+
+        variable.value.assign(newValueClipped);
 
         this.entropy = this.entropy * this.entropyDecay;
       }
@@ -75,7 +79,7 @@ export class StocasticOptimizer extends DFOptimizer {
   }
 }
 
-export function stocastic(varList, config) {
+export function optimizer(varList, config) {
   return new StocasticOptimizer(varList, config);
 }
 

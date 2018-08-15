@@ -38,6 +38,6 @@ Input => Matrix => Output
 
 Input => Matrix => Output
 
-.
-
+DFO Algorithms to think about.
+https://github.com/numericalalgorithmsgroup/dfols
 

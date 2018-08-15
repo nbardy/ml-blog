@@ -11,6 +11,9 @@ export class ModelOptimizer {
     // I don't know what I'm doing
     // Second dense layer uses softmax activation.
     const denseLayer2 = tf.layers.dense({units: 1, activation: 'softmax', useBias: true});
+
+    const lstmLayer = tf.layers.lstm({units: 1, returnSequences: true, implementation: 1})
+
     const flatten = tf.layers.flatten()
     const final = tf.layers.dense({units: 1, activation: 'relu6'})
 
@@ -118,7 +121,7 @@ export class ModelOptimizer {
   }
 }
 
-export function modelOptimizer(learningRate, bounds, varList) {
-  return new ModelOptimizer(learningRate, bounds, varList);
+export function optimizer(varList, boundList, config) {
+  return new ModelOptimizer(varList, boundList, config);
 }
 

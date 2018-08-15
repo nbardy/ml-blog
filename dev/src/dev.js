@@ -1,7 +1,7 @@
 import {newElement}            from '~/dom.js'
-import {newField, newParticles, updateParticles }              
+import {clipField, newField, newParticles, updateParticles }              
                                from '~/data.js'
-import {clipField, closeToMiddle, percentInZone, distanceTraveled}         
+import {closeToMiddle, percentInZone, distanceTraveled}         
                                from '~/loss.js'
 import {drawScene}         from '~/draw.js'
 import css from '~/file.css';
@@ -47,11 +47,13 @@ function start(config) {
 
   // const optimizer = learn.randomOptimizer(field, 0.001)
   //
-  // TODO: Change this
-  const optimizer = mdfo.modelOptimizer(
-    [field], 
-    [[config.lowerBound, config.upperBound]],
-    config);
+  // const optimizer = mdfo.optimizer(
+  //   [field], 
+  //   [[-15,15]],
+  //   config
+  // );
+
+  const optimizer = sdfo.optimizer([field], config)
 
   // TODO; Change from trackOptimizer, to postData
   chart.trackOptimizer(optimizer, canvasChart)
@@ -85,7 +87,9 @@ function start(config) {
     generation++;
 
     if((generation % config.drawRate) == 0) {
-      drawScene(canvas, updatedParticles, field, config);
+      window.requestAnimationFrame(() => {
+        drawScene(canvas, updatedParticles, field, config);
+      })
     }
 
 
@@ -93,9 +97,7 @@ function start(config) {
       optimizer.minimize(() => {
         const val = closeToMiddle(updatedParticles[0], config);
         return val;
-      }
-        , 
-        (x) => { clipField(x, config) }) 
+      })
     }
 
 
@@ -128,7 +130,7 @@ function start(config) {
     // }
 
     if(running) {
-      requestAnimationFrame(
+      setTimeout(
         function() { run(updatedParticles) })
     }
   }
@@ -141,30 +143,29 @@ window.tf = tf;
 const DEV_CONFIG = {
   width:   400,
   height:  400,
-  density: 1/80,
+  density: 1/50,
   initVelMagnitude: 8.1,
   initVelStdDev: 0.1,
   initForceMagnitude: 0,
   initForceStdDev: 5.1,
   // Make this work
   resetRate: 0.01,
-  forceMagnitude: 1.2,
-  friction: 0.987,
-  maximumVelocity: 11.2,
+  forceMagnitude: 3.9,
+  friction: 0.911,
+  maximumVelocity: 7.2,
   maximumForce: 13.2,
   particleCount: 2000,
-  learningRate: 1.41,
-  entropyDecay: 0.96,
+  learningRate: 0.41,
+  entropyDecay: 0.99,
   updatesPerOptimizer: 1,
   drawRate: 1,
   sampleRate: 1,
-  trainRate: 420,
+  trainRate: 50,
   randomSeed: 50,
-  searchSize: 30,
-  epochs: 1,
-  drawField: false,
-  lowerBound: -0.5,
-  upperBound: 0.5
+  searchSize: 20,
+  epochs: 3,
+  drawField: true,
+  clip: (i) => clipField(i, 2)
 }
 
 // Others
