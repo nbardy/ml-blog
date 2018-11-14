@@ -1,8 +1,10 @@
 import {newElement}            from '~/dom.js'
-import {clipField, newField, newParticles, updateParticles }              
+import {clipField, newField, newParticles, updateParticles,
+        updateParticles2, newModel}              
                                from '~/data.js'
 import {closeToMiddle, percentInZone, distanceTraveled}         
                                from '~/loss.js'
+
 import {drawScene}         from '~/draw.js'
 import css from '~/file.css';
 
@@ -41,6 +43,7 @@ function start(config) {
   const canvasChart = newElement("canvas", { width: 500, height: 300})
 
   // The force field
+  const model = newModel(config);
   const field = tf.variable(newField(config));
   // The particles of the simulation
   var particles = newParticles(config)
@@ -53,10 +56,12 @@ function start(config) {
   //   config
   // );
 
-  const optimizer = sdfo.optimizer([field], config)
+  // const optimizer = sdfo.optimizer([field], config)
 
   // TODO; Change from trackOptimizer, to postData
-  chart.trackOptimizer(optimizer, canvasChart)
+  // chart.trackOptimizer(optimizer, canvasChart)
+  //
+  const optimizer = tf.train.adam(config.learningRate)
 
   drawScene(canvas, particles, field, config)
   const board = document.createElement("div");
@@ -79,28 +84,26 @@ function start(config) {
   var counter;
 
   function run(particles) {
-    // particles[0].print()
-    // for(var i = 0; i < config.updatesPerOptimizer; i++) {
-    const updatedParticles = 
-        updateParticles(particles, field, 1, config);
+    optimizer.minimize(() => {
+      // particles[0].print()
+      // for(var i = 0; i < config.updatesPerOptimizer; i++) {
+      updatedParticles = 
+        // updateParticles(particles, field, 1, config);
+        tf.keep(updateParticles2(particles, model, 1, generation, config));
 
-    generation++;
+      
+      generation++;
 
-    if((generation % config.drawRate) == 0) {
-      window.requestAnimationFrame(() => {
-        drawScene(canvas, updatedParticles, field, config);
-      })
-    }
-
-
-    if((generation % config.trainRate) == 0) {
-      optimizer.minimize(() => {
-        const val = closeToMiddle(updatedParticles[0], config);
-        return val;
-      })
-    }
+      if((generation % config.drawRate) == 0) {
+        window.requestAnimationFrame(() => {
+          drawScene(canvas, updatedParticles, field, config);
+        })
+      }
 
 
+      const val = closeToMiddle(updatedParticles[0], config);
+      return val;
+    });
 
     /* Memory Cleanup */
     // if((generation % config.sampleRate) == 0) {
@@ -150,22 +153,23 @@ const DEV_CONFIG = {
   initForceStdDev: 5.1,
   // Make this work
   resetRate: 0.01,
-  forceMagnitude: 3.9,
+  forceMagnitude: 5.51,
   friction: 0.911,
-  maximumVelocity: 7.2,
+  maximumVelocity: 3.2,
   maximumForce: 13.2,
-  particleCount: 2000,
-  learningRate: 0.41,
+  particleCount: 800,
+  learningRate: 0.01,
   entropyDecay: 0.99,
   updatesPerOptimizer: 1,
   drawRate: 1,
   sampleRate: 1,
-  trainRate: 50,
+  printRate: 40,
+  trainRate: 20,
   randomSeed: 50,
   searchSize: 20,
   epochs: 3,
-  drawField: true,
-  clip: (i) => clipField(i, 2)
+  drawField: false,
+  clip: (i) => clipField(i, 15)
 }
 
 // Others

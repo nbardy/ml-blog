@@ -14,12 +14,14 @@ export function trackOptimizer(optimizer, canvas ) {
           label: "Loss",
           yAxisID: 'A',
           pointBackgroundColor: '#F412A1',
+	  pointBorderColor: '#FE1123',
           data: lossData
         },
         {
           label: "Entropy",
           yAxisID: 'B',
           pointBackgroundColor: '#14D201',
+	  pointBorderColor: '#AEA123',
           data: entropyData
         }
       ]

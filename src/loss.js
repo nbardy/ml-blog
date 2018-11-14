@@ -19,23 +19,6 @@ export function closeToMiddle(points, config) {
   });
 }
 
-const distance =  50;
-
-// Returns a tf.scalar result from 0 -> 1 indicating the percent of points in the desired area
-export function percentInZone(points, config) {
-  return tf.tidy(() => {
-    const point = tf.tensor1d([config.width / 2, config.height / 2]);
-
-    const diffs = points.squaredDifference(point);
-
-    const percent = 
-      diffs.sum(1).sqrt().less(tf.scalar(distance)).toFloat().sum().div(tf.scalar(config.particleCount))
-    // t.print()
-
-    return tf.scalar(1).sub(percent);
-  });
-}
-
 
 export function distanceTraveled(v1,v2) {
   return tf.tidy(() => {
