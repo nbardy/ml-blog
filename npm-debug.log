@@ -1,0 +1,89 @@
+0 info it worked if it ends with ok
+1 verbose cli [ '/usr/bin/node', '/usr/bin/npm', 'bugs', 'ml-blo' ]
+2 info using npm@3.5.2
+3 info using node@v8.10.0
+4 silly fetchPackageMetaData ml-blo
+5 silly fetchNamedPackageData ml-blo
+6 silly mapToRegistry name ml-blo
+7 silly mapToRegistry using default registry
+8 silly mapToRegistry registry https://registry.npmjs.org/
+9 silly mapToRegistry uri https://registry.npmjs.org/ml-blo
+10 verbose request uri https://registry.npmjs.org/ml-blo
+11 verbose request no auth needed
+12 info attempt registry request try #1 at 2:21:26 PM
+13 verbose request id 0466f158be8eeaff
+14 http request GET https://registry.npmjs.org/ml-blo
+15 http 404 https://registry.npmjs.org/ml-blo
+16 verbose headers { date: 'Tue, 04 Sep 2018 22:21:27 GMT',
+16 verbose headers   'content-type': 'application/json',
+16 verbose headers   'content-length': '21',
+16 verbose headers   connection: 'keep-alive',
+16 verbose headers   'set-cookie':
+16 verbose headers    [ '__cfduid=d8f308e90c4dc87a2b0205e31ee41dc311536099687; expires=Wed, 04-Sep-19 22:21:27 GMT; path=/; domain=.registry.npmjs.org; HttpOnly' ],
+16 verbose headers   'cf-cache-status': 'MISS',
+16 verbose headers   'cache-control': 'max-age=300',
+16 verbose headers   'cf-ray': '4553d9659919b90d-MIA',
+16 verbose headers   'expect-ct': 'max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"',
+16 verbose headers   vary: 'accept-encoding, accept',
+16 verbose headers   server: 'cloudflare' }
+17 silly get cb [ 404,
+17 silly get   { date: 'Tue, 04 Sep 2018 22:21:27 GMT',
+17 silly get     'content-type': 'application/json',
+17 silly get     'content-length': '21',
+17 silly get     connection: 'keep-alive',
+17 silly get     'set-cookie':
+17 silly get      [ '__cfduid=d8f308e90c4dc87a2b0205e31ee41dc311536099687; expires=Wed, 04-Sep-19 22:21:27 GMT; path=/; domain=.registry.npmjs.org; HttpOnly' ],
+17 silly get     'cf-cache-status': 'MISS',
+17 silly get     'cache-control': 'max-age=300',
+17 silly get     'cf-ray': '4553d9659919b90d-MIA',
+17 silly get     'expect-ct': 'max-age=604800, report-uri="https://report-uri.cloudflare.com/cdn-cgi/beacon/expect-ct"',
+17 silly get     vary: 'accept-encoding, accept',
+17 silly get     server: 'cloudflare' } ]
+18 silly fetchPackageMetaData Error: Not found : ml-blo
+18 silly fetchPackageMetaData     at makeError (/usr/share/npm/node_modules/npm-registry-client/lib/request.js:264:12)
+18 silly fetchPackageMetaData     at CachingRegistryClient.<anonymous> (/usr/share/npm/node_modules/npm-registry-client/lib/request.js:252:14)
+18 silly fetchPackageMetaData     at Request._callback (/usr/share/npm/node_modules/npm-registry-client/lib/request.js:172:14)
+18 silly fetchPackageMetaData     at Request.self.callback (/usr/share/npm/node_modules/request/request.js:198:22)
+18 silly fetchPackageMetaData     at emitTwo (events.js:126:13)
+18 silly fetchPackageMetaData     at Request.emit (events.js:214:7)
+18 silly fetchPackageMetaData     at Request.<anonymous> (/usr/share/npm/node_modules/request/request.js:1082:10)
+18 silly fetchPackageMetaData     at emitOne (events.js:121:20)
+18 silly fetchPackageMetaData     at Request.emit (events.js:211:7)
+18 silly fetchPackageMetaData     at IncomingMessage.<anonymous> (/usr/share/npm/node_modules/request/request.js:1009:12)
+18 silly fetchPackageMetaData  error for ml-blo { Error: Not found : ml-blo
+18 silly fetchPackageMetaData     at makeError (/usr/share/npm/node_modules/npm-registry-client/lib/request.js:264:12)
+18 silly fetchPackageMetaData     at CachingRegistryClient.<anonymous> (/usr/share/npm/node_modules/npm-registry-client/lib/request.js:252:14)
+18 silly fetchPackageMetaData     at Request._callback (/usr/share/npm/node_modules/npm-registry-client/lib/request.js:172:14)
+18 silly fetchPackageMetaData     at Request.self.callback (/usr/share/npm/node_modules/request/request.js:198:22)
+18 silly fetchPackageMetaData     at emitTwo (events.js:126:13)
+18 silly fetchPackageMetaData     at Request.emit (events.js:214:7)
+18 silly fetchPackageMetaData     at Request.<anonymous> (/usr/share/npm/node_modules/request/request.js:1082:10)
+18 silly fetchPackageMetaData     at emitOne (events.js:121:20)
+18 silly fetchPackageMetaData     at Request.emit (events.js:211:7)
+18 silly fetchPackageMetaData     at IncomingMessage.<anonymous> (/usr/share/npm/node_modules/request/request.js:1009:12) pkgid: 'ml-blo', statusCode: 404, code: 'E404' }
+19 verbose stack Error: Not found : ml-blo
+19 verbose stack     at makeError (/usr/share/npm/node_modules/npm-registry-client/lib/request.js:264:12)
+19 verbose stack     at CachingRegistryClient.<anonymous> (/usr/share/npm/node_modules/npm-registry-client/lib/request.js:252:14)
+19 verbose stack     at Request._callback (/usr/share/npm/node_modules/npm-registry-client/lib/request.js:172:14)
+19 verbose stack     at Request.self.callback (/usr/share/npm/node_modules/request/request.js:198:22)
+19 verbose stack     at emitTwo (events.js:126:13)
+19 verbose stack     at Request.emit (events.js:214:7)
+19 verbose stack     at Request.<anonymous> (/usr/share/npm/node_modules/request/request.js:1082:10)
+19 verbose stack     at emitOne (events.js:121:20)
+19 verbose stack     at Request.emit (events.js:211:7)
+19 verbose stack     at IncomingMessage.<anonymous> (/usr/share/npm/node_modules/request/request.js:1009:12)
+20 verbose statusCode 404
+21 verbose pkgid ml-blo
+22 verbose cwd /mnt/c/Users/nicho/Dropbox/act/force-art
+23 error Linux 4.4.0-17134-Microsoft
+24 error argv "/usr/bin/node" "/usr/bin/npm" "bugs" "ml-blo"
+25 error node v8.10.0
+26 error npm  v3.5.2
+27 error code E404
+28 error 404 Not found : ml-blo
+29 error 404
+30 error 404 'ml-blo' is not in the npm registry.
+31 error 404 You should bug the author to publish it (or use the name yourself!)
+32 error 404 Note that you can also install from a
+33 error 404 tarball, folder, http url, or git url.
+34 verbose exit [ 1, true ]
