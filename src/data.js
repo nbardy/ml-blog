@@ -87,13 +87,24 @@ export function newModel(config) {
 
 }
 
+// Speed model
+export function newModel2(config) { 
+  const w = config.width*config.density;
+  const h = config.height*config.density;
+
+  const model2 = tf.sequential();
+  model2.add(tf.layers.dense({units: 4, inputShape: [4]}))
+  model2.add(tf.layers.dense({units: 16}))
+  model2.add(tf.layers.dense({units: 2, outputShape: [2]}))
+  model2.compile({loss: 'meanSquaredError', optimizer: 'sgd'});
+
+  return model2;
+
+}
+
 export function updateParticles2([pos, vel], model, dt, generation, config) {
   return tf.tidy(() => {
     // Scale down to fit force field dimensions
-    //
-    //
-    //
-
     const particles = [pos,vel]
 
     const posNormalized =  
@@ -102,15 +113,17 @@ export function updateParticles2([pos, vel], model, dt, generation, config) {
     const velNormalized =
       vel.div(tf.scalar(config.maximumVelocity))
 
-    const forces = 
-      model.predict([posNormalized, velNormalized]);
+    const axis = 1;
 
+    const forces = 
+      model.predict(tf.concat([posNormalized, velNormalized], axis));
 
     // Shift forces from 0,1 to -0.5,0.5
     const forcesShifted = forces.sub(tf.scalar(0.5))
     if((generation % config.printRate) == 0) {
       forcesShifted.print()
     }
+
     // Forces applied with relevant magnitude
     const forcesScaled = forcesShifted.mul(tf.scalar(config.forceMagnitude));
 

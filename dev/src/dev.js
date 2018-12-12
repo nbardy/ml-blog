@@ -1,6 +1,6 @@
 import {newElement}            from '~/dom.js'
 import {clipField, newField, newParticles, updateParticles,
-        updateParticles2, newModel}              
+        updateParticles2, newModel, newModel2}              
                                from '~/data.js'
 import {closeToMiddle, percentInZone, distanceTraveled}         
                                from '~/loss.js'
@@ -10,8 +10,7 @@ import css from '~/file.css';
 
 import * as tf from '@tensorflow/tfjs'
 
-import * as dat from 'dat.gui';
-
+import * as dat from 'dat.gui'; 
 import {seededRandom} from '~/rand.js'
 import * as learn from '~/learn.js'
 import * as chart from '~/chart_optimizer.js'
@@ -43,7 +42,7 @@ function start(config) {
   const canvasChart = newElement("canvas", { width: 500, height: 300})
 
   // The force field
-  const model = newModel(config);
+  const model = newModel2(config);
   const field = tf.variable(newField(config));
   // The particles of the simulation
   var particles = newParticles(config)
@@ -90,7 +89,6 @@ function start(config) {
       updatedParticles = 
         // updateParticles(particles, field, 1, config);
         tf.keep(updateParticles2(particles, model, 1, generation, config));
-
       
       generation++;
 
@@ -100,8 +98,7 @@ function start(config) {
         })
       }
 
-
-      const val = closeToMiddle(updatedParticles[0], config);
+      const val = closeToMiddle(updatedParticles[0].slice(0, 200), config);
       return val;
     });
 
@@ -189,10 +186,8 @@ function makeGUI() {
 }
 
 
-
 if(module.hot) {
   clean()
-
   makeGUI()
   module.hot.accept();
   start(DEV_CONFIG)
