@@ -154,7 +154,7 @@ const DEV_CONFIG = {
   friction: 0.911,
   maximumVelocity: 3.2,
   maximumForce: 13.2,
-  particleCount: 800,
+  particleCount: 1200,
   learningRate: 0.01,
   entropyDecay: 0.99,
   updatesPerOptimizer: 1,
