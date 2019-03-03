@@ -1,7 +1,6 @@
 import * as tf from '@tensorflow/tfjs';
 
 const difference = 50;
-
 /* Scoring functions */
 
 export function closeToMiddle(points, config) {
@@ -10,26 +9,33 @@ export function closeToMiddle(points, config) {
 
     const diffs = points.squaredDifference(point);
 
-    const t = 
-      diffs.sum(1)
-      .sub(tf.scalar(difference*difference)).square().softplus().mean();
+    const t = diffs
+      .sum(1)
+      .sub(tf.scalar(difference * difference))
+      .square()
+      .softplus()
+      .mean();
     // t.print()
 
     return t;
   });
 }
 
-
-export function distanceTraveled(v1,v2) {
+export function distanceTraveled(v1, v2) {
   return tf.tidy(() => {
-    return v1.sub(v2).softplus().mean();
+    return v1
+      .sub(v2)
+      .softplus()
+      .mean();
   });
 }
 
-export function distanceTraveledInverse(v1,v2) {
+export function distanceTraveledInverse(v1, v2) {
   return tf.tidy(() => {
-    return v1.sub(v2).softplus().add(tf.scalar(-0.5)).mean();
+    return v1
+      .sub(v2)
+      .softplus()
+      .add(tf.scalar(-0.5))
+      .mean();
   });
 }
-
-
