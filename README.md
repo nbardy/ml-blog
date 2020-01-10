@@ -27,6 +27,10 @@ To build the dev build to `dist` run:
 yarn run build:dev
 ```
 
+Deploy by pushing dist folder to gh-pages
+
+NOTE:
+
 There is currently no production build setup.
 
 # Example Photo

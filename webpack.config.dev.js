@@ -12,7 +12,7 @@ module.exports = {
     "./dev/src/dev.js"
   ],
   output: {
-    path: path.resolve(__dirname, "docs"),
+    path: path.resolve(__dirname, "dist"),
     filename: "app.bundle.js"
   },
   devtool: "inline-source-map",
@@ -20,7 +20,7 @@ module.exports = {
     hot: true
   },
   plugins: [
-    new CleanWebpackPlugin(["docs"]),
+    new CleanWebpackPlugin(["dist"]),
     new HtmlWebpackPlugin({
       title: "Force Art"
     }),
