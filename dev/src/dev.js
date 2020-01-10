@@ -1,36 +1,29 @@
-import {newElement} from '~/dom.js';
+import { newElement } from "~/dom.js";
 import {
   clipField,
   newField,
   newParticles,
   updateParticles,
-  updateParticles2,
-} from '~/data.js';
+  updateParticles2
+} from "~/data.js";
 
-import {newModel} from '~/models.js';
+import { newModel } from "~/models.js";
 
-import {closeToMiddle, percentInZone, distanceTraveled} from '~/loss.js';
+import { closeToMiddle, percentInZone, distanceTraveled } from "~/loss.js";
 
-import {drawScene} from '~/draw.js';
-import css from '~/file.css';
+import { drawScene } from "~/draw.js";
+import css from "~/file.css";
 
-import * as tf from '@tensorflow/tfjs';
+import * as tf from "@tensorflow/tfjs";
 
-import * as dat from 'dat.gui';
-import {seededRandom} from '~/rand.js';
-import * as learn from '~/learn.js';
-import * as chart from '~/chart_optimizer.js';
-import * as sdfo from '~/stocastic_dfo_optimizer.js';
-import * as mdfo from '~/model_dfo_optimizer.js';
+import * as dat from "dat.gui";
+import { seededRandom } from "~/rand.js";
+import * as learn from "~/learn.js";
+import * as chart from "~/chart_optimizer.js";
+import * as sdfo from "~/stocastic_dfo_optimizer.js";
+import * as mdfo from "~/model_dfo_optimizer.js";
 
-console.log('--- Dev Mode ---');
-
-var killPrevious = function() {};
-
-function clean() {
-  document.body.innerHTML = '';
-  killPrevious();
-}
+console.log("--- Dev Mode ---");
 
 function clearStates(states) {
   while (states.length > 0) {
@@ -44,11 +37,11 @@ function start(config) {
   // dt is amount of change in time
   const dt = 1;
   const chart_data = [];
-  const canvas = newElement('canvas', {
-    width: config.width,
-    height: config.height,
+  const canvas = newElement("canvas", {
+    width: window.innerWidth,
+    height: window.innerHeight
   });
-  const canvasChart = newElement('canvas', {width: 500, height: 300});
+  const canvasChart = newElement("canvas", { width: 500, height: 300 });
 
   // The force field
   const model = newModel(config, 3);
@@ -56,6 +49,9 @@ function start(config) {
   // The particles of the simulation
   var initialParticles = newParticles(config);
 
+  // I was trying to use non differentiable optimizers
+  // I ended up swapping the update function to be differentiable
+  //
   // const optimizer = learn.randomOptimizer(field, 0.001)
   //
   // const optimizer = mdfo.optimizer(
@@ -69,23 +65,19 @@ function start(config) {
   // TODO; Change from trackOptimizer, to postData
   // chart.trackOptimizer(optimizer, canvasChart)
   //
-  const optimizer = tf.train.adam(config.learningRate);
+  let optimizer = tf.train.adam(config.learningRate);
 
   // Draw first Scene
   drawScene(canvas, initialParticles, field, config);
 
   // Create needed dom elements
-  const board = document.createElement('div');
+  const board = document.createElement("div");
   document.body.appendChild(board);
   document.body.appendChild(canvas);
   document.body.appendChild(canvasChart);
 
   // Use closure to kill
   var running = true;
-
-  killPrevious = function() {
-    running = false;
-  };
 
   var updatedParticles;
   var nextParticleState;
@@ -97,7 +89,16 @@ function start(config) {
   var p2;
   var counter;
 
-  function run(particles) {
+  let current_run_id = 0;
+  function refresh() {
+    // Reset optimizer
+    optimizer = tf.train.adam(config.learningRate);
+    const ps = newParticles(config);
+    current_run_id = current_run_id + 1;
+    run(ps, current_run_id);
+  }
+
+  function run(particles, run_id) {
     optimizer.minimize(() => {
       // particles[0].print()
       // for(var i = 0; i < config.updatesPerOptimizer; i++) {
@@ -149,36 +150,36 @@ function start(config) {
     particles[0].dispose();
     particles[1].dispose();
 
-    console.log('numTensors : ' + tf.memory().numTensors);
+    console.log("numTensors : " + tf.memory().numTensors);
     // }
 
-    if (running) {
+    if (run_id === current_run_id) {
       setTimeout(function() {
-        run(keptParticles);
+        run(keptParticles, run_id);
       });
     }
   }
 
-  run(initialParticles);
+  run(initialParticles, current_run_id);
 }
 
 window.tf = tf;
 
 const DEV_CONFIG = {
-  width: 400,
-  height: 400,
+  width: window.innerWidth,
+  height: window.innerHeight,
   density: 1 / 50,
   initVelMagnitude: 8.1,
   initVelStdDev: 0.1,
   initForceMagnitude: 0,
   initForceStdDev: 5.1,
-  // Make this work
-  resetRate: 0.01,
-  forceMagnitude: 5.51,
-  friction: 0.911,
-  maximumVelocity: 3.2,
+  resetRate: 0.05,
+  alphaBlend: 0.13,
+  forceMagnitude: 1.51,
+  friction: 0.311,
+  maximumVelocity: 12.2,
   maximumForce: 13.2,
-  particleCount: 1200,
+  particleCount: 1000,
   learningRate: 0.01,
   entropyDecay: 0.99,
   updatesPerOptimizer: 1,
@@ -191,6 +192,7 @@ const DEV_CONFIG = {
   epochs: 3,
   drawField: false,
   clip: i => clipField(i, 15),
+  backgroundColor: [12, 0, 34]
 };
 
 // Others
@@ -200,18 +202,28 @@ const DEV_CONFIG = {
 // forceMag 1
 
 function makeGUI() {
-  const gui = new dat.GUI({name: 'Force Field'});
-  gui.add(DEV_CONFIG, 'forceMagnitude', 0, 10);
-  gui.add(DEV_CONFIG, 'friction', 0.5, 1);
-  gui.add(DEV_CONFIG, 'maximumVelocity', 0, 60);
-  gui.add(DEV_CONFIG, 'drawRate', 0, 200, 1);
-  gui.add(DEV_CONFIG, 'drawField');
+  const gui = new dat.GUI({ name: "Force Field" });
+  gui.add(DEV_CONFIG, "resetRate", 0, 1);
+  gui.add(DEV_CONFIG, "alphaBlend", 0, 1);
+  gui.add(DEV_CONFIG, "drawField");
+  gui.add(DEV_CONFIG, "forceMagnitude", 0, 10);
+  gui.add(DEV_CONFIG, "friction", 0.5, 1);
+  gui.add(DEV_CONFIG, "maximumVelocity", 0, 60);
+  gui.add(DEV_CONFIG, "drawRate", 0, 200, 1);
+  gui.add(DEV_CONFIG, "density", 1 / 2000, 1);
+  gui.add(DEV_CONFIG, "particleCount");
   // gui.add(DEV_CONFIG, "randomSeed", 0, 100, 1)
 }
 
+console.log("debug/pre-hot");
+
 if (module.hot) {
-  clean();
   makeGUI();
-  module.hot.accept();
-  start(DEV_CONFIG);
+
+  const app = start(DEV_CONFIG);
+  console.log("debug/re");
+  module.hot.accept("./dev.js", () => {
+    console.log("debug/re2");
+    app.refresh();
+  });
 }
