@@ -41,7 +41,6 @@ function start(config) {
     width: window.innerWidth,
     height: window.innerHeight
   });
-  const canvasChart = newElement("canvas", { width: 500, height: 300 });
 
   // The force field
   const model = newModel(config, 3);
@@ -74,7 +73,6 @@ function start(config) {
   const board = document.createElement("div");
   document.body.appendChild(board);
   document.body.appendChild(canvas);
-  document.body.appendChild(canvasChart);
 
   // Use closure to kill
   var running = true;
