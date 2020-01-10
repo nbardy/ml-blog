@@ -206,7 +206,7 @@ function makeGUI() {
   gui.add(DEV_CONFIG, "drawField");
   gui.add(DEV_CONFIG, "forceMagnitude", 0, 10);
   gui.add(DEV_CONFIG, "friction", 0.5, 1);
-  gui.add(DEV_CONFIG, "maximumVelocity", 0, 60);
+  gui.add(DEV_CONFIG, "maximumVelocity", 0, 14);
   gui.add(DEV_CONFIG, "drawRate", 0, 200, 1);
   gui.add(DEV_CONFIG, "density", 1 / 2000, 1);
   gui.add(DEV_CONFIG, "particleCount");

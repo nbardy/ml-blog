@@ -118,7 +118,6 @@ export function updateParticles2([pos, vel], model, dt, generation, config) {
     const updatePosWrapped = posX.concat(posY, 1);
 
     const updatePosReset = randomReset(updatePosWrapped, config);
-    // pt('w', updatePosWrapped);
     // pt('r', updatePosReset);
 
     return [updatePosReset, updateVelCapped];
@@ -158,12 +157,12 @@ export function randomReset(originalTensor, config) {
 
     const resetPos = resetX.concat(resetY, 1);
 
-    pt("rp", originalTensor);
-    pt("rb", randomBooleans);
-    pt("posX", posX);
-    pt("rx", resetX);
-    pt("ry", resetY);
-    pt("rp", resetPos);
+    // pt("rp", originalTensor);
+    // pt("rb", randomBooleans);
+    // pt("posX", posX);
+    // pt("rx", resetX);
+    // pt("ry", resetY);
+    // pt("rp", resetPos);
 
     return resetPos;
   });
