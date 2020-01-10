@@ -1,54 +1,52 @@
-const path = require('path');
-const HtmlWebpackPlugin = require('html-webpack-plugin');
-const CleanWebpackPlugin = require('clean-webpack-plugin');
-const webpack = require('webpack');
+const path = require("path");
+const HtmlWebpackPlugin = require("html-webpack-plugin");
+const CleanWebpackPlugin = require("clean-webpack-plugin");
+const webpack = require("webpack");
 
 module.exports = {
   entry: [
     // Babel
-    "babel-polyfill", 
+    "babel-polyfill",
     // App
     // Dev Profile
-    './dev/src/dev.js'
+    "./dev/src/dev.js"
   ],
   output: {
-    path: path.resolve(__dirname, 'dist'),
-    filename: 'app.bundle.js'
+    path: path.resolve(__dirname, "docs"),
+    filename: "app.bundle.js"
   },
-  devtool: 'inline-source-map',
+  devtool: "inline-source-map",
   devServer: {
     hot: true
   },
   plugins: [
-    new CleanWebpackPlugin(['dist']),
+    new CleanWebpackPlugin(["docs"]),
     new HtmlWebpackPlugin({
-      title: 'Force Art'
+      title: "Force Art"
     }),
     new webpack.NamedModulesPlugin(),
     new webpack.HotModuleReplacementPlugin()
   ],
-  mode: 'development',
+  mode: "development",
   module: {
     rules: [
       {
         test: /\.js$/,
         exclude: /(node_modules|bower_components)/,
         use: {
-          loader: 'babel-loader',
+          loader: "babel-loader",
           options: {
-            presets: ['es2017']
+            presets: ["es2017"]
           }
         }
       },
       {
         test: /\.css$/,
-        use: ['style-loader', 'css-loader']
+        use: ["style-loader", "css-loader"]
       },
       {
         test: /\.(png|svg|jpg|gif)$/,
-        use: [
-          'file-loader'
-        ]
+        use: ["file-loader"]
       }
     ]
   }
